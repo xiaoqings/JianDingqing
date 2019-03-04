@@ -4,6 +4,7 @@ import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
+import request from '../utils/request';
 
 export default {
   namespace: 'login',
@@ -14,6 +15,11 @@ export default {
 
   effects: {
     *login({ payload }, { call, put }) {
+
+     // let res =  yield request('/api/login/account', { method: 'POST', body: payload});
+     //
+     //  console.log(res);
+
       const response = yield call(fakeAccountLogin, payload);
       console.log(response);
 
