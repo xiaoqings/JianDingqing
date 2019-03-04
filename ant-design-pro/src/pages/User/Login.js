@@ -75,12 +75,10 @@ class LoginPage extends Component {
             this.loginForm = form;
           }}
         >
-          {login.status === 'error' &&
-            login.type === 'account' &&
-            !submitting &&
-            this.renderMessage('账户或密码错误（admin/123456)')}
+          {login .status === 'error' &&  login.type === 'account' &&  !submitting &&
+          this.renderMessage('账户或密码错误（admin/123456)')}
           <UserName
-            name="userName"
+            name="businessPhone"
             placeholder={`用户名 : admin or user`}
             rules={[
               {
@@ -90,7 +88,7 @@ class LoginPage extends Component {
             ]}
           />
           <Password
-            name="password"
+            name="businessPassword"
             placeholder={`密码 : 123456`}
             rules={[
               {

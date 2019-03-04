@@ -105,10 +105,13 @@ export async function updateFakeList(params) {
 
 // todo 用户登录
 export async function fakeAccountLogin(params) {
-  return request('/api/login/account', {
-    method: 'POST',
-    body: params,
-  });
+  let res = await request(`/api/lr/loginOut `);
+  console.log(res);
+  return res;
+  // return request('/api/login/account', {
+  //   method: 'POST',
+  //   body: params,
+  // });
 }
 
 export async function fakeRegister(params) {
