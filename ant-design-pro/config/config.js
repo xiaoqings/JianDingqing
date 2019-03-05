@@ -66,11 +66,12 @@ export default {
     // port: 9000,
     proxy: {
       '/api': {
-        target: "http://114.64.249.41",
-        changeOrigin:true,
-        pathRewrite: {'^/api' : ''}
-      }
-    }
+        target: 'http://114.64.249.41',
+        // target: "http://172.20.10.4:8001",
+        changeOrigin: true,
+        pathRewrite: { '^/api': '' },
+      },
+    },
   },
   define: {
     APP_TYPE: APP_TYPE || '',

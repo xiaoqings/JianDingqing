@@ -90,10 +90,15 @@ export default function request(url, option) {
     if (!(newOptions.body instanceof FormData)) {
       newOptions.headers = {
         Accept: 'application/json',
-        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
         ...newOptions.headers,
       };
-      newOptions.body = JSON.stringify(newOptions.body);
+      // newOptions.body = JSON.stringify(newOptions.body);
+      newOptions.body = Object.keys(newOptions.body)
+        .map(key => {
+          return encodeURIComponent(key) + '=' + encodeURIComponent(newOptions.body[key]);
+        })
+        .join('&');
     } else {
       // newOptions.body is FormData
       newOptions.headers = {
@@ -118,6 +123,7 @@ export default function request(url, option) {
       sessionStorage.removeItem(`${hashcode}:timestamp`);
     }
   }
+
   return fetch(url, newOptions)
     .then(checkStatus)
     .then(response => cachedSave(response, hashcode))

@@ -53,15 +53,15 @@ class Register extends Component {
   }
 
   onGetCaptcha = () => {
-    const {dispatch} = this.props;
-    const {mobile} = this.state;
-    if(!mobile){
+    const { dispatch } = this.props;
+    const { mobile } = this.state;
+    if (!mobile) {
       return message.error('请输入手机号!');
     }
 
     dispatch({
       type: 'register/send',
-      payload: {mobile},
+      payload: { mobile },
     });
 
     let count = 59;
@@ -92,13 +92,9 @@ class Register extends Component {
     const { form, dispatch } = this.props;
     form.validateFields({ force: true }, (err, values) => {
       if (!err) {
-        const { prefix } = this.state;
         dispatch({
           type: 'register/submit',
-          payload: {
-            ...values,
-            prefix,
-          },
+          payload: { ...values },
         });
       }
     });
@@ -142,7 +138,6 @@ class Register extends Component {
     }
   };
 
-
   renderPasswordProgress = () => {
     const { form } = this.props;
     const value = form.getFieldValue('password');
@@ -169,20 +164,6 @@ class Register extends Component {
         <h3 style={{ textAlign: 'center', fontSize: '24px' }}>{'商家入驻'}</h3>
         <Form onSubmit={this.handleSubmit}>
           <FormItem>
-            {getFieldDecorator('mail', {
-              rules: [
-                {
-                  required: true,
-                  message: '请输入邮箱地址',
-                },
-                {
-                  type: 'email',
-                  message: '邮箱地址格式错误',
-                },
-              ],
-            })(<Input size="large" placeholder={'邮箱地址'} />)}
-          </FormItem>
-          <FormItem>
             <InputGroup compact>
               {getFieldDecorator('mobile', {
                 rules: [
@@ -195,7 +176,13 @@ class Register extends Component {
                     message: '手机号格式错误',
                   },
                 ],
-              })(<Input size="large" onChange={(e) => this.setState({mobile:e.target.value})} style={{ width: '80%' }} placeholder={'手机号'} />)}
+              })(
+                <Input
+                  size="large"
+                  onChange={e => this.setState({ mobile: e.target.value })}
+                  placeholder={'手机号'}
+                />
+              )}
             </InputGroup>
           </FormItem>
           <FormItem>

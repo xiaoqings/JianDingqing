@@ -3,6 +3,7 @@ import { setAuthority } from '@/utils/authority';
 import { reloadAuthorized } from '@/utils/Authorized';
 import request from '../../../utils/request';
 import { message } from 'antd';
+import * as routerRedux from 'react-router-redux';
 
 export default {
   namespace: 'register',
@@ -12,35 +13,38 @@ export default {
   },
 
   effects: {
+    // todo 用户注册
     *submit({ payload }, { call, put }) {
       console.log(payload);
       payload = {
-        confirmPassword : payload.confirmPassword,
-        businessPassword : payload.password,
-        businessPhone : payload.mobile,
-        code : payload.captcha
+        confirmPassword: payload.confirmPassword,
+        businessPassword: payload.password,
+        businessPhone: payload.mobile,
+        code: payload.captcha,
       };
-      const response = yield call(fakeRegister, payload);
-      yield put({
-        type: 'registerHandle',
-        payload: response,
-      });
-    },
-    *send({ payload }, { call, put }) {
-      payload = { businessPhone : payload.mobile};
-      console.log(payload);
-      let response =  yield request('/api/lr/sendSms', { method: 'POST', body: payload});
-      console.log(response);
-      if(!(response && response.status === 200)){
-        return message.error(response.message);
+      const response = yield request('/api/lr/register', { method: 'POST', body: payload });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '注册失败!');
       }
+      console.log(response);
+      message.success('注册成功!');
+      yield put(routerRedux.replace('/#/User/Login'));
+    },
 
-      yield put({
-        // type: 'registerHandle',
-        // payload: response,
-      });
+    // todo 发送短信验证码
+    *send({ payload }, { call, put }) {
+      payload = { businessPhone: payload.mobile };
+      console.log(payload);
+      let response = yield request('/api/lr/sendSms', { method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '验证码发送失败!');
+      }
+      message.success('验证码已发送,请注意查收!');
+      console.log(response);
     },
   },
+
   reducers: {
     registerHandle(state, { payload }) {
       setAuthority('user');

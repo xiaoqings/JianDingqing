@@ -80,17 +80,7 @@ class Center extends PureComponent {
   };
 
   render() {
-    const { newTags, inputVisible, inputValue } = this.state;
-    const {
-      listLoading,
-      currentUser,
-      currentUserLoading,
-      project: { notice },
-      projectLoading,
-      match,
-      location,
-      children,
-    } = this.props;
+    const { listLoading, currentUser, currentUserLoading, match, location, children } = this.props;
 
     const operationTabList = [
       {
@@ -132,11 +122,11 @@ class Center extends PureComponent {
                     <div className={styles.name}>{currentUser.name}</div>
                   </div>
                   <div className={styles.detail}>
-                    <p>
-                      <Icon type="book" />
-                      {currentUser.geographic.province.label}
-                      {currentUser.geographic.city.label}
-                    </p>
+                    {/*<p>*/}
+                    {/*<Icon type="book" />*/}
+                    {/*{currentUser.geographic.province.label}*/}
+                    {/*{currentUser.geographic.city.label}*/}
+                    {/*</p>*/}
                     <p>
                       <Icon type="phone" />
                       159 xxxx 5689

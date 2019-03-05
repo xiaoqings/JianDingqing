@@ -1,4 +1,6 @@
 import { queryFakeList, removeFakeList, addFakeList, updateFakeList } from '@/services/api';
+import request from '../utils/request';
+import { message } from 'antd';
 
 export default {
   namespace: 'list',
@@ -15,6 +17,33 @@ export default {
         payload: Array.isArray(response) ? response : [],
       });
     },
+
+    // todo 查询用户登录日志
+    *fetchBusinessList({ payload }, { call, put }) {
+      let response = yield request('/api/detail/list', { method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message);
+      }
+      yield put({
+        type: 'queryList',
+        payload: response,
+      });
+    },
+
+    // todo 查询用户登录日志
+    *fetchLog({ payload }, { call, put }) {
+      let response = yield request('/api/record/list', { method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message);
+      }
+      yield put({
+        type: 'queryList',
+        payload: response,
+      });
+    },
+
     *appendFetch({ payload }, { call, put }) {
       const response = yield call(queryFakeList, payload);
       yield put({
@@ -38,10 +67,11 @@ export default {
   },
 
   reducers: {
-    queryList(state, action) {
+    queryList(state, { payload }) {
       return {
         ...state,
-        list: action.payload,
+        list: payload.data,
+        page: payload.page,
       };
     },
     appendList(state, action) {

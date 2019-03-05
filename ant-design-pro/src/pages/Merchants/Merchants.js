@@ -2,19 +2,29 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
 import { Table, Card, Form, Input, Divider } from 'antd';
+import { getDateString } from '../../utils/utils';
 
 const Search = Input.Search;
 
-@connect(({ rule, loading }) => ({
-  rule,
-  loading: loading.models.rule,
+@connect(({ list, loading }) => ({
+  list,
+  loading: loading.effects['list/fetchBusinessList'],
 }))
 @Form.create()
 export default class Merchants extends PureComponent {
   constructor() {
     super();
 
-    this.state = {};
+    this.state = {
+      startDate: getDateString(new Date()),
+      endDate: getDateString(new Date()),
+    };
+
+    this.pages = {
+      pageIndex: 1,
+      pageSize: 10,
+      pageCount: 0,
+    };
 
     this.pages = {
       pageIndex: 1,
@@ -23,30 +33,35 @@ export default class Merchants extends PureComponent {
     };
   }
 
+  /**
+   totalConsumptionShoppingSpot: 650
+   * @type {*[]}
+   */
+
   columns = [
     {
-      title: '序号',
-      dataIndex: 'key',
-    },
-    {
       title: '编号',
-      dataIndex: 'num',
+      dataIndex: 'businessDetailId',
     },
     {
       title: '商家名称',
-      dataIndex: 'name',
+      dataIndex: 'businessName',
     },
     {
       title: '联系人',
-      dataIndex: 'name',
+      dataIndex: 'businessContact',
     },
     {
       title: '联系电话',
-      dataIndex: 'phone',
+      dataIndex: 'businessPhone',
     },
     {
       title: '商家地址',
-      dataIndex: 'name',
+      dataIndex: 'businessAddress',
+    },
+    {
+      title: '未核销的购物点数',
+      dataIndex: 'totalConsumptionShoppingSpot',
     },
     {
       title: '入驻时间',
@@ -70,11 +85,29 @@ export default class Merchants extends PureComponent {
     },
   ];
 
+  componentWillReceiveProps(nextProps) {
+    const {
+      list: { page },
+    } = nextProps;
+    if (page) {
+      this.pages.pageIndex = page.pageIndex || 1;
+      this.pages.pageSize = page.pageSize || 1;
+      this.pages.pageCount = page.totalCount || 1;
+    }
+  }
+
   componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/fetch',
-    });
+    const {
+      list: { page },
+    } = this.props;
+
+    if (page) {
+      this.pages.pageIndex = page.pageIndex || 1;
+      this.pages.pageSize = page.pageSize || 1;
+      this.pages.pageCount = page.totalCount || 1;
+    }
+
+    this.getData();
   }
 
   // todo 加载获得数据
@@ -87,29 +120,18 @@ export default class Merchants extends PureComponent {
       searchValue: this.state.searchValue || '',
     };
     dispatch({
-      type: 'rule/fetch',
+      type: 'list/fetchBusinessList',
       payload: params,
     });
   };
 
   render() {
-    const { data = [], loading } = this.props;
-    const dataSource = [
-      {
-        key: '1',
-        num: '1321564',
-        name: 'Sec Hub',
-        phone: '159 xxxx 2356',
-        createAt: new Date(),
-      },
-      {
-        key: '2',
-        num: '1321564',
-        name: 'Sec Hub',
-        phone: '159 xxxx 2356',
-        createAt: new Date(),
-      },
-    ];
+    const {
+      list: { list },
+      loading = false,
+    } = this.props;
+
+    const { searchValue, startDate, endDate } = this.state;
 
     return (
       <Card bordered={false}>
@@ -124,7 +146,8 @@ export default class Merchants extends PureComponent {
           <h2>{'商家管理列表'}</h2>
           <Search
             style={{ width: 300 }}
-            placeholder={'搜索名称/联系人/电话号码/地址'}
+            value={searchValue || ''}
+            placeholder={'搜索名称/联系人/电话号码'}
             enterButton="搜索"
             onSearch={() => {
               this.pages.pageIndex = 1;
@@ -134,7 +157,7 @@ export default class Merchants extends PureComponent {
         </div>
         <Table
           loading={loading}
-          dataSource={dataSource}
+          dataSource={list}
           columns={this.columns}
           pagination={{
             current: this.pages.pageIndex,

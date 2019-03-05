@@ -1,101 +1,133 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import moment from 'moment';
-import { Table, Card, Form } from 'antd';
+import { Table, Card, Form, Input, DatePicker } from 'antd';
 import styles from '../../List/TableList.less';
+import moment from 'moment';
+import { getDateString } from '../../../utils/utils';
 
-@connect(({ rule, loading }) => ({
-  rule,
-  loading: loading.models.rule,
+const Search = Input.Search;
+
+const { RangePicker } = DatePicker;
+
+const dateFormat = 'YYYY-MM-DD HH:mm:ss';
+
+@connect(({ list, loading }) => ({
+  list,
+  loading: loading.effects['list/fetchLog'],
 }))
 @Form.create()
 class List extends PureComponent {
   constructor() {
     super();
 
+    this.state = {
+      startDate: getDateString(new Date()),
+      endDate: getDateString(new Date()),
+    };
+
     this.pages = {
       pageIndex: 1,
-      pageSize: 20,
+      pageSize: 10,
       pageCount: 0,
     };
+
+    this.columns = [
+      {
+        title: '编号',
+        dataIndex: 'loginId',
+      },
+      {
+        title: '登录商户',
+        dataIndex: 'businessName',
+        render: val => val || '-',
+      },
+      {
+        title: '登录IP',
+        dataIndex: 'ip',
+      },
+      {
+        title: '登陆时间',
+        dataIndex: 'loginTime',
+        // render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+    ];
   }
 
-  state = {
-    modalVisible: false,
-    updateModalVisible: false,
-    expandForm: false,
-    selectedRows: [],
-    formValues: {},
-    stepFormValues: {},
-  };
-
-  columns = [
-    {
-      title: '序号',
-      dataIndex: 'key',
-    },
-    {
-      title: '编号',
-      dataIndex: 'num',
-    },
-    {
-      title: '登录商户',
-      dataIndex: 'num',
-    },
-    {
-      title: '登录IP',
-      dataIndex: 'ip',
-    },
-    {
-      title: '登陆时间',
-      dataIndex: 'createAt',
-      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-  ];
+  componentWillReceiveProps(nextProps) {
+    const {
+      list: { page },
+    } = nextProps;
+    if (page) {
+      this.pages.pageIndex = page.pageIndex || 1;
+      this.pages.pageSize = page.pageSize || 1;
+      this.pages.pageCount = page.totalCount || 1;
+    }
+  }
 
   componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/fetch',
-    });
+    const {
+      list: { page },
+    } = this.props;
+
+    if (page) {
+      this.pages.pageIndex = page.pageIndex || 1;
+      this.pages.pageSize = page.pageSize || 1;
+      this.pages.pageCount = page.totalCount || 1;
+    }
+
+    this.getData();
   }
 
   getData = () => {
     const { dispatch } = this.props;
+
+    const { searchValue, startDate, endDate } = this.state;
+
     const params = {
-      pages: {
-        ...this.pages,
-      },
+      pageIndex: this.pages.pageIndex,
+      pageSize: this.pages.pageSize,
+      businessName: searchValue || '',
+      startTime: startDate,
+      endTime: endDate,
     };
     dispatch({
-      type: 'rule/fetch',
+      type: 'list/fetchLog',
       payload: params,
     });
   };
 
   render() {
-    const { data = [], loading } = this.props;
-    const dataSource = [
-      {
-        key: '1',
-        num: '1321564',
-        createAt: new Date(),
-        ip: '127.0.0.1',
-      },
-      {
-        key: '1',
-        num: '1321564',
-        createAt: new Date(),
-        ip: '127.0.0.1',
-      },
-    ];
+    const {
+      list: { list },
+      loading = false,
+    } = this.props;
+
+    const { searchValue, startDate, endDate } = this.state;
 
     return (
       <Card bordered={false}>
         <div className={styles.tableList}>
+          <div style={{ textAlign: 'right', marginBottom: 20 }}>
+            <RangePicker
+              defaultValue={[moment(startDate, dateFormat), moment(endDate, dateFormat)]}
+              format={dateFormat}
+              onChange={(dates, dateStrings) => {
+                this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] }, () =>
+                  this.getData()
+                );
+              }}
+            />
+            <Search
+              placeholder="搜索"
+              value={searchValue || ''}
+              onSearch={value => this.setState({ searchValue: value }, () => this.getData())}
+              style={{ width: 250, marginLeft: 10 }}
+              enterButton
+            />
+          </div>
           <Table
             loading={loading}
-            dataSource={dataSource}
+            dataSource={list}
             columns={this.columns}
             pagination={{
               current: this.pages.pageIndex,

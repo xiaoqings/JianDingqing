@@ -1,4 +1,5 @@
 import { query as queryUsers, queryCurrent } from '@/services/user';
+import * as routerRedux from 'react-router-redux';
 
 export default {
   namespace: 'user',
@@ -16,11 +17,17 @@ export default {
         payload: response,
       });
     },
+
+    // todo 查询当前登录用户信息
     *fetchCurrent(_, { call, put }) {
-      const response = yield call(queryCurrent);
+      let res = JSON.parse(window.localStorage.getItem('currUser'));
+      console.log('currUser ==> ', res);
+      if (res === null) {
+        yield put(routerRedux.replace('/user/login'));
+      }
       yield put({
         type: 'saveCurrentUser',
-        payload: response,
+        payload: res,
       });
     },
   },
@@ -32,10 +39,10 @@ export default {
         list: action.payload,
       };
     },
-    saveCurrentUser(state, action) {
+    saveCurrentUser(state, { payload }) {
       return {
         ...state,
-        currentUser: action.payload || {},
+        currentUser: payload || {},
       };
     },
     changeNotifyCount(state, action) {
