@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import Link from 'umi/link';
 import router from 'umi/router';
-import { Form, Input, Button, Select, Row, Col, Popover, Progress } from 'antd';
+import { Form, Input, Button, Select, Row, Col, Popover, Progress, message } from 'antd';
 import styles from './Register.less';
 
 const FormItem = Form.Item;
@@ -53,6 +53,17 @@ class Register extends Component {
   }
 
   onGetCaptcha = () => {
+    const {dispatch} = this.props;
+    const {mobile} = this.state;
+    if(!mobile){
+      return message.error('请输入手机号!');
+    }
+
+    dispatch({
+      type: 'register/send',
+      payload: {mobile},
+    });
+
     let count = 59;
     this.setState({ count });
     this.interval = setInterval(() => {
@@ -93,12 +104,6 @@ class Register extends Component {
     });
   };
 
-  handleConfirmBlur = e => {
-    const { value } = e.target;
-    const { confirmDirty } = this.state;
-    this.setState({ confirmDirty: confirmDirty || !!value });
-  };
-
   checkConfirm = (rule, value, callback) => {
     const { form } = this.props;
     if (value && value !== form.getFieldValue('password')) {
@@ -137,11 +142,6 @@ class Register extends Component {
     }
   };
 
-  changePrefix = value => {
-    this.setState({
-      prefix: value,
-    });
-  };
 
   renderPasswordProgress = () => {
     const { form } = this.props;
@@ -163,7 +163,7 @@ class Register extends Component {
   render() {
     const { form, submitting } = this.props;
     const { getFieldDecorator } = form;
-    const { count, prefix, help, visible } = this.state;
+    const { count, help, visible } = this.state;
     return (
       <div className={styles.main}>
         <h3 style={{ textAlign: 'center', fontSize: '24px' }}>{'商家入驻'}</h3>
@@ -184,15 +184,6 @@ class Register extends Component {
           </FormItem>
           <FormItem>
             <InputGroup compact>
-              <Select
-                size="large"
-                value={prefix}
-                onChange={this.changePrefix}
-                style={{ width: '20%' }}
-              >
-                <Option value="86">+86</Option>
-                <Option value="87">+87</Option>
-              </Select>
               {getFieldDecorator('mobile', {
                 rules: [
                   {
@@ -204,7 +195,7 @@ class Register extends Component {
                     message: '手机号格式错误',
                   },
                 ],
-              })(<Input size="large" style={{ width: '80%' }} placeholder={'手机号'} />)}
+              })(<Input size="large" onChange={(e) => this.setState({mobile:e.target.value})} style={{ width: '80%' }} placeholder={'手机号'} />)}
             </InputGroup>
           </FormItem>
           <FormItem>
@@ -257,7 +248,7 @@ class Register extends Component {
             </Popover>
           </FormItem>
           <FormItem>
-            {getFieldDecorator('confirm', {
+            {getFieldDecorator('confirmPassword', {
               rules: [
                 {
                   required: true,

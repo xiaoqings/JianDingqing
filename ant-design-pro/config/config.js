@@ -61,6 +61,17 @@ if (APP_TYPE === 'site') {
 export default {
   // add for transfer to umi
   plugins,
+  devServer: {
+    // contentBase: __dirname + "/",
+    // port: 9000,
+    proxy: {
+      '/api': {
+        target: "http://114.64.249.41",
+        changeOrigin:true,
+        pathRewrite: {'^/api' : ''}
+      }
+    }
+  },
   define: {
     APP_TYPE: APP_TYPE || '',
   },
@@ -78,14 +89,6 @@ export default {
   externals: {
     '@antv/data-set': 'DataSet',
     bizcharts: 'BizCharts',
-  },
-  devServer: {
-    proxy: {
-      '/api': {
-        target: "http://114.64.249.41",
-        pathRewrite: {'^/api' : ''}
-      }
-    }
   },
   ignoreMomentLocale: true,
   lessLoaderOptions: {

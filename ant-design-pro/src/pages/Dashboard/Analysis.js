@@ -8,7 +8,6 @@ import { AsyncLoadBizCharts } from '@/components/Charts/AsyncLoadBizCharts';
 
 const SalesCard = React.lazy(() => import('./SalesCard'));
 const TopSearch = React.lazy(() => import('./TopSearch'));
-const ProportionSales = React.lazy(() => import('./ProportionSales'));
 
 @connect(({ chart, loading }) => ({
   chart,
@@ -89,23 +88,13 @@ class Analysis extends Component {
   };
 
   render() {
-    const { rangePickerValue, salesType, currentTabKey } = this.state;
+    const { rangePickerValue } = this.state;
     const { chart, loading } = this.props;
     const {
-      visitData,
       visitData2,
       salesData,
       searchData,
-      salesTypeData,
-      salesTypeDataOnline,
-      salesTypeDataOffline,
     } = chart;
-    let salesPieData;
-    if (salesType === 'all') {
-      salesPieData = salesTypeData;
-    } else {
-      salesPieData = salesType === 'online' ? salesTypeDataOnline : salesTypeDataOffline;
-    }
     const menu = (
       <Menu>
         <Menu.Item>操作一</Menu.Item>

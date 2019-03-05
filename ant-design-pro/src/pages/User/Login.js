@@ -13,12 +13,7 @@ const { UserName, Password, Submit } = Login;
 }))
 class LoginPage extends Component {
   state = {
-    type: 'account',
     autoLogin: true,
-  };
-
-  onTabChange = type => {
-    this.setState({ type });
   };
 
   onGetCaptcha = () =>
@@ -39,15 +34,11 @@ class LoginPage extends Component {
     });
 
   handleSubmit = (err, values) => {
-    const { type } = this.state;
     if (!err) {
       const { dispatch } = this.props;
       dispatch({
         type: 'login/login',
-        payload: {
-          ...values,
-          type,
-        },
+        payload: { ...values},
       });
     }
   };
@@ -64,22 +55,20 @@ class LoginPage extends Component {
 
   render() {
     const { login, submitting } = this.props;
-    const { type, autoLogin } = this.state;
+    const { autoLogin } = this.state;
     return (
       <div className={styles.main}>
         <Login
-          defaultActiveKey={type}
-          onTabChange={this.onTabChange}
           onSubmit={this.handleSubmit}
           ref={form => {
             this.loginForm = form;
           }}
         >
-          {login .status === 'error' &&  login.type === 'account' &&  !submitting &&
-          this.renderMessage('账户或密码错误（admin/123456)')}
+          {login .status === 'error' &&  !submitting &&
+          this.renderMessage('账户或密码错误')}
           <UserName
             name="businessPhone"
-            placeholder={`用户名 : admin or user`}
+            placeholder={`手机号`}
             rules={[
               {
                 required: true,
@@ -89,7 +78,7 @@ class LoginPage extends Component {
           />
           <Password
             name="businessPassword"
-            placeholder={`密码 : 123456`}
+            placeholder={`密码`}
             rules={[
               {
                 required: true,

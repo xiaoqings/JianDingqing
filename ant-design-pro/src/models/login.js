@@ -5,6 +5,7 @@ import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
 import request from '../utils/request';
+import {message} from 'antd';
 
 export default {
   namespace: 'login',
@@ -15,12 +16,11 @@ export default {
 
   effects: {
     *login({ payload }, { call, put }) {
-
-     // let res =  yield request('/api/login/account', { method: 'POST', body: payload});
-     //
-     //  console.log(res);
-
-      const response = yield call(fakeAccountLogin, payload);
+      console.log(payload);
+      let response =  yield request('/api/lr/login', { method: 'POST', body: payload});
+      if(!(response && response.status === 200)){
+        return message.error(response.message);
+      }
       console.log(response);
 
       yield put({
@@ -48,6 +48,7 @@ export default {
         }
         yield put(routerRedux.replace(redirect || '/'));
       }
+
     },
 
     *getCaptcha({ payload }, { call }) {

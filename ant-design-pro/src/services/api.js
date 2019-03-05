@@ -105,9 +105,10 @@ export async function updateFakeList(params) {
 
 // todo 用户登录
 export async function fakeAccountLogin(params) {
-  let res = await request(`/api/lr/loginOut `);
-  console.log(res);
-  return res;
+  return request('/api/lr/login', {
+    method: 'POST',
+    body: params,
+  });
   // return request('/api/login/account', {
   //   method: 'POST',
   //   body: params,

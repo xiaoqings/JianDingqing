@@ -24,9 +24,7 @@ const SalesCard = memo(
           tabBarExtraContent={
             <div className={styles.salesExtraWrap}>
               <div className={styles.salesExtra}>
-                <a className={isActive('today')} onClick={() => selectDate('today')}>
-                  <FormattedMessage id="app.analysis.all-day" defaultMessage="All Day" />
-                </a>
+                <a className={isActive('today')} onClick={() => selectDate('today')}>{'今日'}</a>
                 <a className={isActive('week')} onClick={() => selectDate('week')}>
                   <FormattedMessage id="app.analysis.all-week" defaultMessage="All Week" />
                 </a>
