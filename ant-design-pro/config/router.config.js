@@ -46,11 +46,21 @@ export default [
         // ],
       },
       {
+        path: '/account/shopping',
+        name: '购物点管理',
+        icon: 'bars',
+        component: './Account/Center/Shopping',
+      },
+      {
         path: '/account/center',
         name: '个人中心',
         icon: 'user',
         component: './Account/Center/Center',
         routes: [
+          {
+            path: '/account/shopping',
+            redirect: '/account/center/shopping',
+          },
           {
             path: '/account/center',
             redirect: '/account/center/articles',

@@ -62,6 +62,16 @@ export default class Merchants extends PureComponent {
     {
       title: '未核销的购物点数',
       dataIndex: 'totalConsumptionShoppingSpot',
+      width : '100px',
+      render: (text, record) => {
+        return (
+          <div>
+            {text}
+            <Divider type="vertical" />
+            <a href="#">详情</a>
+          </div>
+        );
+      },
     },
     {
       title: '入驻时间',
@@ -71,14 +81,13 @@ export default class Merchants extends PureComponent {
     {
       title: '操作',
       dataIndex: 'createAt',
+      width : '200px',
       render: (text, record) => {
         return (
           <Fragment>
-            <a>详细信息</a>
-            <Divider type="vertical" />
             <a href="#">核销记录</a>
             <Divider type="vertical" />
-            <a href="#">删除</a>
+            <a href="#">设置核销时间</a>
           </Fragment>
         );
       },

@@ -20,15 +20,13 @@ export default {
       if (!(response && response.status === 200)) {
         return message.error(response.message);
       }
-      console.log(response);
-
       let {
         businessCode,
         businessPhone,
         businessName,
         businessType = 'user',
         businessContact,
-        businessAvatar,
+        headerPicPath,
       } = response.data;
 
       let result = {
@@ -37,7 +35,7 @@ export default {
         type: businessType,
         name: businessName || ((businessType === 'user') ? 'User - 商户' : 'Admin - 管理员'),
         contact: businessContact || null,
-        avatar: businessAvatar || 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+        avatar: headerPicPath || 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
         email: null,
         address: null,
       };
@@ -53,26 +51,26 @@ export default {
 
       // Login Success
       reloadAuthorized();
-      const urlParams = new URL(window.location.href);
-      const params = getPageQuery();
-      let { redirect } = params;
-      if (redirect) {
-        const redirectUrlParams = new URL(redirect);
-        if (redirectUrlParams.origin === urlParams.origin) {
-          redirect = redirect.substr(urlParams.origin.length);
-          if (redirect.match(/^\/.*#/)) {
-            redirect = redirect.substr(redirect.indexOf('#') + 1);
-          }
-        } else {
-          window.location.href = redirect;
-          return;
-        }
-      }
+      // const urlParams = new URL(window.location.href);
+      // const params = getPageQuery();
+      // let { redirect } = params;
+      // if (redirect) {
+      //   const redirectUrlParams = new URL(redirect);
+      //   if (redirectUrlParams.origin === urlParams.origin) {
+      //     redirect = redirect.substr(urlParams.origin.length);
+      //     if (redirect.match(/^\/.*#/)) {
+      //       redirect = redirect.substr(redirect.indexOf('#') + 1);
+      //     }
+      //   } else {
+      //     window.location.href = redirect;
+      //     return;
+      //   }
+      // }
 
       if (!businessName || !businessContact) {
         yield put(routerRedux.replace('/account/settings'));
       } else {
-        yield put(routerRedux.replace(redirect || '/'));
+        yield put(routerRedux.replace('/'));
       }
     },
 
@@ -96,6 +94,31 @@ export default {
           search: stringify({
             redirect: window.location.href,
           }),
+        })
+      );
+    },
+
+    // todo 修改密码
+    *updatePassword({payload}, { put }) {
+      console.log(payload);
+      let response = yield request('/api/lr/up', { method: 'POST', body: payload });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message);
+      }
+      message.success('密码修改成功,请重新登录!');
+      yield put({
+        type: 'changeLoginStatus',
+        payload: {
+          user: null,
+          status: false,
+          currentAuthority: 'guest',
+        },
+      });
+      reloadAuthorized();
+      yield put(
+        routerRedux.push({
+          pathname: '/user/login',
+          search: stringify({ redirect: window.location.href}),
         })
       );
     },

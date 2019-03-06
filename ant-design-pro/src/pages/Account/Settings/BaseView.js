@@ -1,55 +1,32 @@
-import React, { Component, Fragment } from 'react';
-import { Form, Input, Upload, Select, Button } from 'antd';
+import React, { Component } from 'react';
+import { Form, Input, Upload,  Button, Icon ,message} from 'antd';
 import { connect } from 'dva';
 import styles from './BaseView.less';
-import GeographicView from './GeographicView';
-import PhoneView from './PhoneView';
 
 const FormItem = Form.Item;
-const { Option } = Select;
 
-// 头像组件 方便以后独立，增加裁剪之类的功能
-const AvatarView = ({ avatar }) => (
-  <Fragment>
-    <div className={styles.avatar_title}>{'头像'}</div>
-    <div className={styles.avatar}>
-      <img src={avatar} alt="avatar" />
-    </div>
-    <Upload fileList={[]}>
-      <div className={styles.button_view}>
-        <Button icon="upload">{'上传头像'}</Button>
-      </div>
-    </Upload>
-  </Fragment>
-);
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
 
-const validatorGeographic = (rule, value, callback) => {
-  const { province, city } = value;
-  if (!province.key) {
-    callback('请选择省份!');
-  }
-  if (!city.key) {
-    callback('请选择你在的城市!');
-  }
-  callback();
-};
-
-const validatorPhone = (rule, value, callback) => {
-  const values = value.split('-');
-  if (!values[0]) {
-    callback('请输入你的电话!');
-  }
-  if (!values[1]) {
-    callback('请输入你的手机号!');
-  }
-  callback();
-};
-
-@connect(({ user }) => ({
+@connect(({ user ,loading }) => ({
   currentUser: user.currentUser,
+  submitting : loading.effects['user/updateUserInfo'],
 }))
 @Form.create()
+
 class BaseView extends Component {
+
+  constructor(){
+    super();
+
+    this.state = {
+
+    };
+  }
+
   componentDidMount() {
     this.setBaseInfo();
   }
@@ -76,24 +53,69 @@ class BaseView extends Component {
     this.view = ref;
   };
 
+  handleSubmit = e => {
+    e.preventDefault();
+    const { form, dispatch } = this.props;
+    form.validateFields({ force: true }, (err, values) => {
+      if (!err) {
+        dispatch({
+          type: 'user/updateUserInfo',
+          payload: { ...values},
+        });
+      }
+    });
+  };
+
+  handleChange = ({file}) => {
+    const { dispatch } = this.props;
+    if (file.status === 'uploading') {
+      this.setState({ loading: true });
+      return;
+    }
+    if (file.status === 'done') {
+      let KB = (file.size / 1024);
+      const isLt2M = KB < 400;
+      if (!isLt2M) {
+        return message.error('上传图片太大, 上传图片最大为 500KB!');
+      }
+      getBase64(file.originFileObj,
+        (imageUrl) => {
+          dispatch({
+            type: 'user/updateAvatar',
+            payload: {
+              filePath : imageUrl
+            },
+          });
+          this.setState({
+            imageUrl,
+            loading: false,
+          });
+        }
+      );
+    }
+  };
+
   render() {
     const {
       form: { getFieldDecorator },
+      submitting
     } = this.props;
+
+    const {
+      loading = false,
+      imageUrl = this.getAvatarURL()
+    } = this.state;
+
+    const uploadButton = (
+      <div>
+        <Icon type={loading ? 'loading' : 'plus'} />
+        <div className="ant-upload-text">{'上传头像'}</div>
+      </div>
+    );
     return (
       <div className={styles.baseView} ref={this.getViewDom}>
         <div className={styles.left}>
           <Form layout="vertical" onSubmit={this.handleSubmit} hideRequiredMark>
-            <FormItem label={'邮箱'}>
-              {getFieldDecorator('email', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入您的邮箱!',
-                  },
-                ],
-              })(<Input />)}
-            </FormItem>
             <FormItem label={'店铺名称'}>
               {getFieldDecorator('name', {
                 rules: [
@@ -103,53 +125,6 @@ class BaseView extends Component {
                   },
                 ],
               })(<Input />)}
-            </FormItem>
-            <FormItem label={'店铺简介'}>
-              {getFieldDecorator('profile', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入你的店铺简介',
-                  },
-                ],
-              })(<Input.TextArea placeholder={'店铺简介'} rows={4} />)}
-            </FormItem>
-            <FormItem label={'国家/地区'}>
-              {getFieldDecorator('country', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择你所在的国家',
-                  },
-                ],
-              })(
-                <Select style={{ maxWidth: 220 }}>
-                  <Option value="China">中国</Option>
-                </Select>
-              )}
-            </FormItem>
-            <FormItem label={'所在省市'}>
-              {getFieldDecorator('geographic', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择你所在的省市',
-                  },
-                  {
-                    validator: validatorGeographic,
-                  },
-                ],
-              })(<GeographicView />)}
-            </FormItem>
-            <FormItem label={'街道地址'}>
-              {getFieldDecorator('address', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入您的街道地址',
-                  },
-                ],
-              })(<Input placehoder={'街道地址'} />)}
             </FormItem>
             <FormItem label={'联系人'}>
               {getFieldDecorator('contact', {
@@ -167,16 +142,33 @@ class BaseView extends Component {
                   {
                     required: true,
                     message: '请输入您的联系电话!',
-                  },
-                  { validator: validatorPhone },
+                  }
                 ],
-              })(<PhoneView />)}
+              })(<Input placehoder={'联系电话'} />)}
             </FormItem>
-            <Button type="primary">{'更新基本信息'}</Button>
+            <FormItem label={'地址'}>
+              {getFieldDecorator('address', {
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入您的街道地址',
+                  },
+                ],
+              })(<Input placehoder={'地址详情'} />)}
+            </FormItem>
+            <Button type="primary" loading={submitting} htmlType="submit">{'更新基本信息'}</Button>
           </Form>
         </div>
         <div className={styles.right}>
-          <AvatarView avatar={this.getAvatarURL()} />
+          <Upload
+            name="avatar"
+            listType="picture-card"
+            className="avatar-uploader"
+            showUploadList={false}
+            onChange={this.handleChange}
+          >
+            {imageUrl ? <img src={imageUrl} alt="avatar"  style={{width:'100px'}}  /> : uploadButton}
+          </Upload>
         </div>
       </div>
     );

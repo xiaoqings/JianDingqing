@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import styles from '../../User/Register.less';
-import { Form, Input, Button, Popover } from 'antd';
+import { Form, Input, Button, Popover, Progress } from 'antd';
 
 const FormItem = Form.Item;
 
@@ -18,20 +18,21 @@ const passwordProgressMap = {
 
 @connect(({ login, loading }) => ({
   login,
-  submitting: loading.effects['login/login'],
+  submitting: loading.effects['login/updatePassword'],
 }))
 @Form.create()
+
 class SecurityView extends Component {
-  state = {
-    count: 0,
-    confirmDirty: false,
-    visible: false,
-    help: '',
-    prefix: '86',
-  };
 
   constructor() {
     super();
+    this.state = {
+      count: 0,
+      confirmDirty: false,
+      visible: false,
+      help: '',
+      prefix: '86',
+    };
   }
 
   handleSubmit = e => {
@@ -39,13 +40,9 @@ class SecurityView extends Component {
     const { form, dispatch } = this.props;
     form.validateFields({ force: true }, (err, values) => {
       if (!err) {
-        const { prefix } = this.state;
         dispatch({
-          type: 'register/submit',
-          payload: {
-            ...values,
-            prefix,
-          },
+          type: 'login/updatePassword',
+          payload: { ...values},
         });
       }
     });
@@ -53,7 +50,7 @@ class SecurityView extends Component {
 
   getPasswordStatus = () => {
     const { form } = this.props;
-    const value = form.getFieldValue('password');
+    const value = form.getFieldValue('newPassword');
     if (value && value.length > 9) {
       return 'ok';
     }
@@ -94,7 +91,7 @@ class SecurityView extends Component {
 
   checkConfirm = (rule, value, callback) => {
     const { form } = this.props;
-    if (value && value !== form.getFieldValue('password')) {
+    if (value && value !== form.getFieldValue('newPassword')) {
       callback('两次输入的密码不匹配!');
     } else {
       callback();
@@ -103,7 +100,7 @@ class SecurityView extends Component {
 
   renderPasswordProgress = () => {
     const { form } = this.props;
-    const value = form.getFieldValue('password');
+    const value = form.getFieldValue('newPassword');
     const passwordStatus = this.getPasswordStatus();
     return value && value.length ? (
       <div className={styles[`progress-${passwordStatus}`]}>
@@ -125,15 +122,12 @@ class SecurityView extends Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         <FormItem label={'原密码'}>
-          {getFieldDecorator('confirm', {
+          {getFieldDecorator('oldPassword', {
             rules: [
               {
                 required: true,
                 message: '请确认原密码',
-              },
-              {
-                validator: this.checkConfirm,
-              },
+              }
             ],
           })(<Input size="large" type="password" placeholder={'原密码'} />)}
         </FormItem>
@@ -153,7 +147,7 @@ class SecurityView extends Component {
             placement="right"
             visible={visible}
           >
-            {getFieldDecorator('password', {
+            {getFieldDecorator('newPassword', {
               rules: [
                 {
                   required: true,
@@ -167,13 +161,12 @@ class SecurityView extends Component {
           </Popover>
         </FormItem>
         <FormItem label={'确认密码'}>
-          {getFieldDecorator('confirm', {
+          {getFieldDecorator('confirmPassword', {
             rules: [
               {
                 required: true,
                 message: '请确认密码',
-              },
-              {
+              }, {
                 validator: this.checkConfirm,
               },
             ],
@@ -181,11 +174,8 @@ class SecurityView extends Component {
         </FormItem>
         <FormItem>
           <Button
-            size="large"
-            loading={submitting}
-            className={styles.submit}
-            type="primary"
-            htmlType="submit"
+            size="large" loading={submitting}
+            className={styles.submit} type="primary" htmlType="submit"
           >
             {'修改密码'}
           </Button>

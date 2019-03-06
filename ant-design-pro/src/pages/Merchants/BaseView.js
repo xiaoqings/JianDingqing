@@ -116,13 +116,9 @@ export default class BaseView extends Component {
     const { form, dispatch } = this.props;
     form.validateFields({ force: true }, (err, values) => {
       if (!err) {
-        const { prefix } = this.state;
         dispatch({
-          type: 'register/submit',
-          payload: {
-            ...values,
-            prefix,
-          },
+          type: 'user/updateUserInfo',
+          payload: { ...values},
         });
       }
     });
@@ -195,7 +191,7 @@ export default class BaseView extends Component {
           <h3 style={{ textAlign: 'center', fontSize: '20px' }}>{'商家入驻'}</h3>
           <Form onSubmit={this.handleSubmit} hideRequiredMark>
             <FormItem label={'店铺名称'}>
-              {getFieldDecorator('name', {
+              {getFieldDecorator('businessAddress', {
                 rules: [
                   {
                     required: true,

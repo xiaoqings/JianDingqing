@@ -1,10 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
-import { Card, Row, Col, Icon, Button, Alert } from 'antd';
+import { Card, Row, Col, Icon, } from 'antd';
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import styles from './Center.less';
-import Authorized from '@/utils/Authorized';
 
 @connect(({ loading, user, project }) => ({
   currentUser: user.currentUser,
@@ -13,35 +12,30 @@ import Authorized from '@/utils/Authorized';
   projectLoading: loading.effects['project/fetchNotice'],
   project,
 }))
-class Center extends PureComponent {
-  state = {
-    newTags: [],
-    inputVisible: false,
-    inputValue: '',
-  };
+export default class Center extends PureComponent {
+  constructor(){
+    super();
+
+    this.state = {
+
+    };
+  }
 
   componentWillReceiveProps(nextProps){
     this.props = nextProps;
   }
 
   componentDidMount() {
+    console.log('currentUser ==> ',this.props.currentUser);
     this.getData();
   }
 
   // todo 数据请求
   getData = () => {
     const { dispatch } = this.props;
+    // todo 获取当前登录用户信息
     dispatch({
       type: 'user/fetchCurrent',
-    });
-    dispatch({
-      type: 'list/fetch',
-      payload: {
-        count: 8,
-      },
-    });
-    dispatch({
-      type: 'project/fetchNotice',
     });
   };
 
@@ -62,6 +56,7 @@ class Center extends PureComponent {
     }
   };
 
+
   render() {
     const {
       currentUserLoading,
@@ -69,7 +64,7 @@ class Center extends PureComponent {
       currentUser,
       match,
       location,
-      children
+      children,
     } = this.props;
 
     const operationTabList = [
@@ -98,10 +93,9 @@ class Center extends PureComponent {
       },
     ];
 
-    console.log('currentUser ==> ',currentUser);
-
     return (
       <GridContent className={styles.userCenter}>
+
         <Row gutter={24}>
           <Col lg={7} md={24}>
             <Card bordered={false} style={{ marginBottom: 24 }} loading={currentUserLoading}>
@@ -117,23 +111,6 @@ class Center extends PureComponent {
                     <p><Icon type="phone"/> {currentUser.phone || '无'}</p>
                     <p><Icon type="environment" /> {currentUser.address || '无'} </p>
                   </div>
-
-                  <div className={styles.button} >
-                    <Authorized authority={['admin']} >
-                      <Button type="primary" icon="pay-circle" size={20}>
-                        {'充值购物卡'}
-                      </Button>
-                    </Authorized>
-                    <Authorized authority={['admin']} >
-                      <Button type="primary" icon="sync" size={20}>
-                        {'积分兑换商品'}
-                      </Button>
-                    </Authorized>
-                    <Button type="primary" icon="swap" size={20}>
-                      {'购物点兑换商品'}
-                    </Button>
-                  </div>
-
                 </div>
               ) : ('加载中...')
               }
@@ -157,4 +134,3 @@ class Center extends PureComponent {
   }
 }
 
-export default Center;
