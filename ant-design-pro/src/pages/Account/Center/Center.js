@@ -1,17 +1,17 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import Link from 'umi/link';
 import router from 'umi/router';
-import { Card, Row, Col, Icon, Avatar, Tag, Divider, Spin, Input } from 'antd';
+import { Card, Row, Col, Icon, Button, Alert } from 'antd';
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import styles from './Center.less';
+import Authorized from '@/utils/Authorized';
 
 @connect(({ loading, user, project }) => ({
-  listLoading: loading.effects['list/fetch'],
   currentUser: user.currentUser,
+  listLoading: loading.effects['list/fetch'],
   currentUserLoading: loading.effects['user/fetchCurrent'],
-  project,
   projectLoading: loading.effects['project/fetchNotice'],
+  project,
 }))
 class Center extends PureComponent {
   state = {
@@ -20,7 +20,16 @@ class Center extends PureComponent {
     inputValue: '',
   };
 
+  componentWillReceiveProps(nextProps){
+    this.props = nextProps;
+  }
+
   componentDidMount() {
+    this.getData();
+  }
+
+  // todo 数据请求
+  getData = () => {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
@@ -34,7 +43,7 @@ class Center extends PureComponent {
     dispatch({
       type: 'project/fetchNotice',
     });
-  }
+  };
 
   onTabChange = key => {
     const { match } = this.props;
@@ -53,45 +62,25 @@ class Center extends PureComponent {
     }
   };
 
-  showInput = () => {
-    this.setState({ inputVisible: true }, () => this.input.focus());
-  };
-
-  saveInputRef = input => {
-    this.input = input;
-  };
-
-  handleInputChange = e => {
-    this.setState({ inputValue: e.target.value });
-  };
-
-  handleInputConfirm = () => {
-    const { state } = this;
-    const { inputValue } = state;
-    let { newTags } = state;
-    if (inputValue && newTags.filter(tag => tag.label === inputValue).length === 0) {
-      newTags = [...newTags, { key: `new-${newTags.length}`, label: inputValue }];
-    }
-    this.setState({
-      newTags,
-      inputVisible: false,
-      inputValue: '',
-    });
-  };
-
   render() {
-    const { listLoading, currentUser, currentUserLoading, match, location, children } = this.props;
+    const {
+      currentUserLoading,
+      listLoading,
+      currentUser,
+      match,
+      location,
+      children
+    } = this.props;
 
     const operationTabList = [
       {
         key: 'articles',
         tab: (
           <span>
-            购物点充值列表 <span style={{ fontSize: 14 }}>(8)</span>
+            顾客购物点消费列表 <span style={{ fontSize: 14 }}>(8)</span>
           </span>
         ),
-      },
-      {
+      }, {
         key: 'projects',
         tab: (
           <span>
@@ -99,8 +88,7 @@ class Center extends PureComponent {
             购物点消费记录 <span style={{ fontSize: 14 }}>(8)</span>
           </span>
         ),
-      },
-      {
+      }, {
         key: 'applications',
         tab: (
           <span>
@@ -110,6 +98,8 @@ class Center extends PureComponent {
       },
     ];
 
+    console.log('currentUser ==> ',currentUser);
+
     return (
       <GridContent className={styles.userCenter}>
         <Row gutter={24}>
@@ -118,24 +108,35 @@ class Center extends PureComponent {
               {currentUser && Object.keys(currentUser).length ? (
                 <div>
                   <div className={styles.avatarHolder}>
-                    <img alt="" src={currentUser.avatar} />
+                    <img alt={'头像'} src={currentUser.avatar} />
                     <div className={styles.name}>{currentUser.name}</div>
                   </div>
                   <div className={styles.detail}>
-                    {/*<p>*/}
-                    {/*<Icon type="book" />*/}
-                    {/*{currentUser.geographic.province.label}*/}
-                    {/*{currentUser.geographic.city.label}*/}
-                    {/*</p>*/}
-                    <p>
-                      <Icon type="phone" />
-                      159 xxxx 5689
-                    </p>
+                    <p><Icon type="user"/> {currentUser.contact || '无'}</p>
+                    <p><Icon type="mail"/> {currentUser.email || '无'}</p>
+                    <p><Icon type="phone"/> {currentUser.phone || '无'}</p>
+                    <p><Icon type="environment" /> {currentUser.address || '无'} </p>
                   </div>
+
+                  <div className={styles.button} >
+                    <Authorized authority={['admin']} >
+                      <Button type="primary" icon="pay-circle" size={20}>
+                        {'充值购物卡'}
+                      </Button>
+                    </Authorized>
+                    <Authorized authority={['admin']} >
+                      <Button type="primary" icon="sync" size={20}>
+                        {'积分兑换商品'}
+                      </Button>
+                    </Authorized>
+                    <Button type="primary" icon="swap" size={20}>
+                      {'购物点兑换商品'}
+                    </Button>
+                  </div>
+
                 </div>
-              ) : (
-                '加载中...'
-              )}
+              ) : ('加载中...')
+              }
             </Card>
           </Col>
           <Col lg={17} md={24}>

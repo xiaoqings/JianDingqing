@@ -90,6 +90,7 @@ export default function request(url, option) {
     if (!(newOptions.body instanceof FormData)) {
       newOptions.headers = {
         Accept: 'application/json',
+        // 'Content-Type': 'application/json; charset=utf-8',
         'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
         ...newOptions.headers,
       };

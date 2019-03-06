@@ -59,7 +59,6 @@ if (APP_TYPE === 'site') {
 }
 
 export default {
-  // add for transfer to umi
   plugins,
   devServer: {
     // contentBase: __dirname + "/",

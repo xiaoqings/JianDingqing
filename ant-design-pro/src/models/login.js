@@ -26,19 +26,20 @@ export default {
         businessCode,
         businessPhone,
         businessName,
-        businessType,
+        businessType = 'user',
         businessContact,
+        businessAvatar,
       } = response.data;
 
       let result = {
         userid: businessCode,
         phone: businessPhone || null,
         type: businessType,
-        name: businessName || 'User - 商户',
+        name: businessName || ((businessType === 'user') ? 'User - 商户' : 'Admin - 管理员'),
         contact: businessContact || null,
-        avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-        email: '',
-        address: '',
+        avatar: businessAvatar || 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+        email: null,
+        address: null,
       };
 
       yield put({
@@ -49,26 +50,28 @@ export default {
           status: true,
         },
       });
+
+      // Login Success
       reloadAuthorized();
+      const urlParams = new URL(window.location.href);
+      const params = getPageQuery();
+      let { redirect } = params;
+      if (redirect) {
+        const redirectUrlParams = new URL(redirect);
+        if (redirectUrlParams.origin === urlParams.origin) {
+          redirect = redirect.substr(urlParams.origin.length);
+          if (redirect.match(/^\/.*#/)) {
+            redirect = redirect.substr(redirect.indexOf('#') + 1);
+          }
+        } else {
+          window.location.href = redirect;
+          return;
+        }
+      }
 
       if (!businessName || !businessContact) {
         yield put(routerRedux.replace('/account/settings'));
       } else {
-        const urlParams = new URL(window.location.href);
-        const params = getPageQuery();
-        let { redirect } = params;
-        if (redirect) {
-          const redirectUrlParams = new URL(redirect);
-          if (redirectUrlParams.origin === urlParams.origin) {
-            redirect = redirect.substr(urlParams.origin.length);
-            if (redirect.match(/^\/.*#/)) {
-              redirect = redirect.substr(redirect.indexOf('#') + 1);
-            }
-          } else {
-            window.location.href = redirect;
-            return;
-          }
-        }
         yield put(routerRedux.replace(redirect || '/'));
       }
     },
