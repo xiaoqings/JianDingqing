@@ -1,10 +1,7 @@
 import React, { memo } from 'react';
-import { Row, Col, Table, Tooltip, Card, Icon } from 'antd';
+import { Table, Card } from 'antd';
 import { FormattedMessage } from 'umi/locale';
-import Trend from '@/components/Trend';
-import numeral from 'numeral';
 import styles from './Analysis.less';
-import NumberInfo from '@/components/NumberInfo';
 import { MiniArea } from '@/components/Charts';
 
 const columns = [
@@ -12,40 +9,24 @@ const columns = [
     title: '排名',
     dataIndex: 'index',
     key: 'index',
-  },
-  {
+  }, {
     title: '店铺名称',
     dataIndex: 'keyword',
     key: 'keyword',
     render: text => <a href="/">{text}</a>,
-  },
-  {
-    title: '用户数',
+  }, {
+    title: '兑换购物点数',
     dataIndex: 'count',
     key: 'count',
-    sorter: (a, b) => a.count - b.count,
     className: styles.alignRight,
-  },
-  {
-    title: '周涨幅',
-    dataIndex: 'range',
-    key: 'range',
-    sorter: (a, b) => a.range - b.range,
-    render: (text, record) => (
-      <Trend flag={record.status === 1 ? 'down' : 'up'}>
-        <span style={{ marginRight: 4 }}>{text}%</span>
-      </Trend>
-    ),
-    align: 'right',
   },
 ];
 
-const TopSearch = memo(({ loading, visitData2, searchData, dropdownGroup }) => (
+const TopSearch = memo(({ loading, searchData }) => (
   <Card
     loading={loading}
     bordered={false}
     title={'门店当月购物点兑换'}
-    extra={dropdownGroup}
     style={{ marginTop: 24 }}
   >
     <Table
@@ -55,7 +36,7 @@ const TopSearch = memo(({ loading, visitData2, searchData, dropdownGroup }) => (
       dataSource={searchData}
       pagination={{
         style: { marginBottom: 0 },
-        pageSize: 5,
+        pageSize: 10,
       }}
     />
   </Card>

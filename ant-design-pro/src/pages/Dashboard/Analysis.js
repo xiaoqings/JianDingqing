@@ -1,141 +1,142 @@
-import React, { Component, Suspense } from 'react';
+import React, { PureComponent, Suspense } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Icon, Menu, Dropdown } from 'antd';
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import { getTimeDistance } from '@/utils/utils';
 import styles from './Analysis.less';
 import { AsyncLoadBizCharts } from '@/components/Charts/AsyncLoadBizCharts';
+import { Card, Table } from 'antd';
 
 const SalesCard = React.lazy(() => import('./SalesCard'));
 const TopSearch = React.lazy(() => import('./TopSearch'));
 
-@connect(({ chart, loading }) => ({
+@connect(({ chart, user, loading }) => ({
   chart,
-  loading: loading.effects['chart/fetch'],
+  list : user,
+  loading: loading.effects['user/fetchHome'],
 }))
-class Analysis extends Component {
-  state = {
-    salesType: 'all',
-    currentTabKey: '',
-    rangePickerValue: getTimeDistance('year'),
-  };
+
+class Analysis extends PureComponent {
+  constructor(){
+    super();
+
+    this.pages = {
+      pageIndex: 1,
+      pageSize: 10,
+      pageCount: 0,
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.props = {
+      ...nextProps
+    };
+    const { list: { page }, } = nextProps;
+    if (page) {
+      this.pages.pageIndex = page.pageIndex || 1;
+      this.pages.pageSize = page.pageSize || 1;
+      this.pages.pageCount = page.totalCount || 1;
+    }
+  }
 
   componentDidMount() {
-    const { dispatch } = this.props;
-    this.reqRef = requestAnimationFrame(() => {
-      dispatch({
-        type: 'chart/fetch',
-      });
-    });
+    const { list: { page }} = this.props;
+    if (page) {
+      this.pages.pageIndex = page.pageIndex || 1;
+      this.pages.pageSize = page.pageSize || 1;
+      this.pages.pageCount = page.totalCount || 1;
+    }
+    this.getData();
   }
 
   componentWillUnmount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'chart/clear',
-    });
     cancelAnimationFrame(this.reqRef);
     clearTimeout(this.timeoutId);
   }
 
-  handleChangeSalesType = e => {
-    this.setState({
-      salesType: e.target.value,
-    });
-  };
-
-  handleTabChange = key => {
-    this.setState({
-      currentTabKey: key,
-    });
-  };
-
-  handleRangePickerChange = rangePickerValue => {
+  getData = () => {
     const { dispatch } = this.props;
-    this.setState({
-      rangePickerValue,
+    this.reqRef = requestAnimationFrame(() => {
+      const params = {
+        pageIndex: this.pages.pageIndex,
+        pageSize: this.pages.pageSize,
+      };
+      dispatch({
+        type: 'user/fetchHome',
+        payload: params,
+      });
     });
-
-    dispatch({
-      type: 'chart/fetchSalesData',
-    });
-  };
-
-  selectDate = type => {
-    const { dispatch } = this.props;
-    this.setState({
-      rangePickerValue: getTimeDistance(type),
-    });
-
-    dispatch({
-      type: 'chart/fetchSalesData',
-    });
-  };
-
-  isActive = type => {
-    const { rangePickerValue } = this.state;
-    const value = getTimeDistance(type);
-    if (!rangePickerValue[0] || !rangePickerValue[1]) {
-      return '';
-    }
-    if (
-      rangePickerValue[0].isSame(value[0], 'day') &&
-      rangePickerValue[1].isSame(value[1], 'day')
-    ) {
-      return styles.currentDate;
-    }
-    return '';
   };
 
   render() {
-    const { rangePickerValue } = this.state;
-    const { chart, loading } = this.props;
-    const {
-      visitData2,
-      salesData,
-      searchData,
-    } = chart;
-    const menu = (
-      <Menu>
-        <Menu.Item>操作一</Menu.Item>
-        <Menu.Item>操作二</Menu.Item>
-      </Menu>
-    );
+    const { list : {list}, loading } = this.props;
 
-    const dropdownGroup = (
-      <span className={styles.iconGroup}>
-        <Dropdown overlay={menu} placement="bottomRight">
-          <Icon type="ellipsis" />
-        </Dropdown>
-      </span>
-    );
+    const salesData = [];
+    for (let i = 0; i < list.length; i ++) {
+      const {businessName,exchangeShoppingSpot} = list[i];
+      salesData.push({
+        x: businessName || '-',
+        y: exchangeShoppingSpot || 0,
+      });
+    }
+
+    const searchData = [];
+    for (let i = 0; i < list.length; i ++) {
+      const {businessName,exchangeShoppingSpot} = list[i];
+      searchData.push({
+        index: i + 1,
+        keyword: businessName,
+        count: exchangeShoppingSpot,
+      });
+    }
+
+    const columns = [
+      {
+        title: '排名',
+        dataIndex: 'index',
+        key: 'index',
+      }, {
+        title: '店铺名称',
+        dataIndex: 'keyword',
+        key: 'keyword',
+        render: text => <a href="/">{text}</a>,
+      }, {
+        title: '兑换购物点数',
+        dataIndex: 'count',
+        key: 'count',
+        className: styles.alignRight,
+      },
+    ];
 
     return (
       <GridContent>
         <Suspense fallback={null}>
           <SalesCard
-            rangePickerValue={rangePickerValue}
             salesData={salesData}
-            isActive={this.isActive}
-            handleRangePickerChange={this.handleRangePickerChange}
             loading={loading}
-            selectDate={this.selectDate}
           />
         </Suspense>
         <div className={styles.twoColLayout}>
-          <Row gutter={24}>
-            <Col md={24} s={24}>
-              <Suspense fallback={null}>
-                <TopSearch
-                  loading={loading}
-                  visitData2={visitData2}
-                  selectDate={this.selectDate}
-                  searchData={searchData}
-                  dropdownGroup={dropdownGroup}
-                />
-              </Suspense>
-            </Col>
-          </Row>
+          <Card
+            loading={loading}
+            bordered={false}
+            title={'门店当月购物点兑换'}
+            style={{ marginTop: 24 }}
+          >
+            <Table
+              loading={loading}
+              dataSource={searchData}
+              columns={columns}
+              pagination={{
+                current: this.pages.pageIndex,
+                pageSize: this.pages.pageSize,
+                total: this.pages.pageCount,
+              }}
+              onChange={pagination => {
+                this.pages.pageIndex = pagination.current;
+                this.getData();
+              }}
+            />
+          </Card>
         </div>
       </GridContent>
     );

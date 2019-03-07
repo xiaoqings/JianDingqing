@@ -1,4 +1,4 @@
-import { query as queryUsers, queryCurrent } from '@/services/user';
+import { queryCurrent } from '@/services/user';
 import * as routerRedux from 'react-router-redux';
 import request from '../utils/request';
 import { message } from 'antd';
@@ -13,8 +13,63 @@ export default {
   },
 
   effects: {
+    // todo 查询商家未核销购物点
     *fetch({payload}, { call, put }) {
-      const response = yield call(queryUsers);
+      let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据查询失败!');
+      }
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+    },
+
+    // todo 查询商家未核销购物点
+    *fetchList({payload}, { call, put }) {
+      let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据查询失败!');
+      }
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+    },
+
+    // todo 查询首页信息
+    *fetchHome({payload}, { call, put }) {
+      let response = yield request('/api/index/data',{ method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据查询失败!');
+      }
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+    },
+
+    // todo 核销记录
+    *alreadyWriteoff({payload}, { call, put }) {
+      let response = yield request('/api/ssc/alreadyWriteoff',{ method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据查询失败!');
+      }
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+    },
+
+    // todo 未核销的购物点数
+    *sscByCondition({payload}, { call, put }) {
+      let response = yield request('/api/ssc/sscByCondition',{ method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据查询失败!');
+      }
       yield put({
         type: 'save',
         payload: response,
@@ -32,7 +87,6 @@ export default {
         payload: res,
       });
       let response = yield request(`/api/detail/bycode/${res.userid}`);
-      console.log(response);
       if (response && response.status === 200) {
         const { businessAddress, businessContact, businessName, businessPhone, headerPicPath} = response.data;
         res.phone = businessPhone || res.phone;
@@ -88,6 +142,7 @@ export default {
         payload: res,
       });
     },
+
     // todo 充值购物点数
     *addShopping({payload}, { call, put }) {
       let response = yield request('/api/ssr/create', { method: 'POST', body: payload });
@@ -98,13 +153,27 @@ export default {
       message.success(`${payload.customerPhone} 用户, 成功充值 ${payload.money} 购物点数!`);
     },
 
+    // todo 购物点消费
+    *deleteShopping({payload}, { call, put }) {
+      payload.customerPhone = payload.phone;
+      payload.consumptionShoppingSpot = payload.money;
+      let response = yield request('/api/ssc/create', { method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '购物点数兑换失败!');
+      }
+      message.success(`${payload.customerPhone} 用户, 你已成功兑换 ${payload.money} 购物点数!`);
+    },
+
   },
 
   reducers: {
-    save(state, action) {
+    save(state, {payload}) {
+      console.log('00000000000000',payload);
       return {
         ...state,
-        list: action.payload,
+        list: payload.data || [],
+        page: payload.page || null
       };
     },
     saveCurrentUser(state, { payload }) {

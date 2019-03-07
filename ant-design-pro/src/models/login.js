@@ -66,6 +66,8 @@ export default {
     },
 
     *logout(_, { put }) {
+      let response = yield request('/api/lr/loginOut');
+
       yield put({
         type: 'changeLoginStatus',
         payload: {

@@ -24,6 +24,7 @@ export default [
         name: '系统首页',
         icon: 'home',
         component: './Dashboard/Analysis',
+        // authority: ['admin'],
       },
       {
         // path: '/merchants',
@@ -51,43 +52,47 @@ export default [
         icon: 'bars',
         component: './Account/Center/Shopping',
       },
-      {
-        path: '/account/center',
-        name: '个人中心',
-        icon: 'user',
-        component: './Account/Center/Center',
-        routes: [
-          {
-            path: '/account/shopping',
-            redirect: '/account/center/shopping',
-          },
-          {
-            path: '/account/center',
-            redirect: '/account/center/articles',
-          },
-          {
-            path: '/account/center/articles',
-            component: './Account/Center/Articles',
-          },
-          {
-            path: '/account/center/applications',
-            component: './Account/Center/Applications',
-          },
-          {
-            path: '/account/center/projects',
-            component: './Account/Center/Projects',
-          },
-        ],
-      },
+      // {
+      //   path: '/account/center',
+      //   name: '个人中心',
+      //   icon: 'user',
+      //   component: './Account/Center/Center',
+      //   routes: [
+      //     {
+      //       path: '/account/shopping',
+      //       redirect: '/account/center/shopping',
+      //     },
+      //     {
+      //       path: '/account/center',
+      //       redirect: '/account/center/articles',
+      //     },
+      //     {
+      //       path: '/account/center/articles',
+      //       component: './Account/Center/Articles',
+      //     },
+      //     {
+      //       path: '/account/center/applications',
+      //       component: './Account/Center/Applications',
+      //     },
+      //     {
+      //       path: '/account/center/projects',
+      //       component: './Account/Center/Projects',
+      //     },
+      //   ],
+      // },
       {
         path: '/account/settings',
-        name: '个人设置',
-        icon: 'setting',
+        name: '个人中心',
+        icon: 'user',
         component: './Account/Settings/Info',
         routes: [
           {
             path: '/account/settings',
             redirect: '/account/settings/base',
+          },
+          {
+            path: '/account/settings/center',
+            component: './Account/Center/Center',
           },
           {
             path: '/account/settings/base',
@@ -110,7 +115,7 @@ export default [
       {
         path: '/account/logs',
         name: '登录日志',
-        icon: 'bars',
+        icon: 'profile',
         component: './Account/Logs/List',
         authority: ['admin'],
       },
