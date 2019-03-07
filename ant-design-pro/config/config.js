@@ -65,8 +65,8 @@ export default {
     // port: 9000,
     proxy: {
       '/api': {
-        // target: 'http://114.64.249.41',
-        target: "http://172.20.10.4:8001",
+        target: 'http://114.64.249.41',
+        // target: "http://172.20.10.4:8001",
         changeOrigin: true,
         pathRewrite: { '^/api': '' },
       },

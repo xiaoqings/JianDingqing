@@ -51,25 +51,12 @@ export default {
 
       // Login Success
       reloadAuthorized();
-      // const urlParams = new URL(window.location.href);
-      // const params = getPageQuery();
-      // let { redirect } = params;
-      // if (redirect) {
-      //   const redirectUrlParams = new URL(redirect);
-      //   if (redirectUrlParams.origin === urlParams.origin) {
-      //     redirect = redirect.substr(urlParams.origin.length);
-      //     if (redirect.match(/^\/.*#/)) {
-      //       redirect = redirect.substr(redirect.indexOf('#') + 1);
-      //     }
-      //   } else {
-      //     window.location.href = redirect;
-      //     return;
-      //   }
-      // }
-
       if (!businessName || !businessContact) {
         yield put(routerRedux.replace('/account/settings'));
       } else {
+        if(businessType === 'user'){
+          yield put(routerRedux.replace('/account/center'));
+        }
         yield put(routerRedux.replace('/'));
       }
     },

@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Table, Card, Form, Input, DatePicker, Button, Modal, Icon, InputNumber  } from 'antd';
+import { Table, Card, Form, Input, DatePicker, Button, Modal, Icon, InputNumber, Row, Col } from 'antd';
 import styles from '../../List/TableList.less';
 import moment from 'moment';
 import { getDateString } from '../../../utils/utils';
@@ -21,9 +21,10 @@ export default  class Shopping extends PureComponent {
   constructor() {
     super();
 
+    let date = new Date();
     this.state = {
-      startDate: getDateString(new Date()),
-      endDate: getDateString(new Date()),
+      startDate: getDateString(),
+      endDate: getDateString(`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`),
     };
 
     this.pages = {
@@ -34,7 +35,7 @@ export default  class Shopping extends PureComponent {
 
     this.columns = [
       {
-        title: '编号',
+        title: '顾客的电话号码',
         dataIndex: 'loginId',
       },
       {
@@ -45,11 +46,6 @@ export default  class Shopping extends PureComponent {
       {
         title: '登录IP',
         dataIndex: 'ip',
-      },
-      {
-        title: '登陆时间',
-        dataIndex: 'loginTime',
-        // render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
       },
     ];
   }
@@ -132,44 +128,54 @@ export default  class Shopping extends PureComponent {
 
     return (
       <Card bordered={false}>
-        <div>{'购物点管理'}</div>
+        <h2 style={{textAlign:'center',fontWeight:600}} >{'购物点管理'}</h2>
         <div style={{display:'flex',flexDirection:'column',marginBottom:20,marginTop:20}} >
-          <Authorized authority={['admin']} >
-            <Button
-              type="primary" icon="pay-circle" size={20}
-              onClick={() => this.setState({visible:true,type:1})}
-            >
-              {'充值购物点'}
-            </Button>
-          </Authorized>
-          <Button
-            style={{marginTop:20}}
-            type="primary" icon="swap" size={20}
-            onClick={() => this.setState({visible:true,type:0})}
-          >
-            {'购物点兑换商品'}
-          </Button>
+          <Row gutter={{ xs: 8, md: 24}} >
+            <Authorized authority={['admin']} >
+              <Col xs={24} md={6} >
+                <Button
+                  style={{marginTop:10,width:'100%'}}
+                  type="primary" icon="pay-circle" size={20}
+                  onClick={() => this.setState({visible:true,type:1})}
+                >
+                  {'充值购物点'}
+                </Button>
+              </Col>
+            </Authorized>
+            <Col xs={24} md={6} >
+              <Button
+                style={{marginTop:10,width:'100%'}}
+                type="primary" icon="swap" size={20}
+                onClick={() => this.setState({visible:true,type:0})}
+              >
+                {'购物点兑换商品'}
+              </Button>
+            </Col>
+            <Col xs={24} md={6} >
+              <RangePicker
+                style={{marginTop:10,width:'100%'}}
+                defaultValue={[moment(startDate, dateFormat), moment(endDate, dateFormat)]}
+                format={dateFormat}
+                onChange={(dates, dateStrings) => {
+                  this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] }, () =>
+                    this.getData()
+                  );
+                }}
+              />
+            </Col>
+            <Col xs={24} md={6}>
+              <Search
+                placeholder="搜索"
+                value={searchValue || ''}
+                onSearch={value => this.setState({ searchValue: value }, () => this.getData())}
+                style={{ width: '100%',marginTop:10}}
+                enterButton
+              />
+            </Col>
+          </Row>
         </div>
 
         <div className={styles.tableList} >
-          <div style={{ textAlign: 'right', marginBottom: 20 }}>
-            <RangePicker
-              defaultValue={[moment(startDate, dateFormat), moment(endDate, dateFormat)]}
-              format={dateFormat}
-              onChange={(dates, dateStrings) => {
-                this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] }, () =>
-                  this.getData()
-                );
-              }}
-            />
-            <Search
-              placeholder="搜索"
-              value={searchValue || ''}
-              onSearch={value => this.setState({ searchValue: value }, () => this.getData())}
-              style={{ width: 250, marginLeft: 10 }}
-              enterButton
-            />
-          </div>
           <Table
             loading={loading}
             dataSource={list}
@@ -212,15 +218,15 @@ export default  class Shopping extends PureComponent {
               })(
                 <InputNumber
                   style={{width:'100%'}}
+                  placeholder="充值购物点数"
                   formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   parser={value => value.replace(/\$\s?|(,*)/g, '')}
                   prefix={<Icon type="money-collec" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                  placeholder="充值购物点数"
                 />
               )}
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">{'立即充值'}</Button>
+              <Button type="primary" htmlType="submit" style={{width:'100%'}} >{'立即充值'}</Button>
             </Form.Item>
           </Form>
         </Modal>
