@@ -54,10 +54,11 @@ export default {
       if (!businessName || !businessContact) {
         yield put(routerRedux.replace('/account/settings'));
       } else {
-        if(businessType === 'user'){
-          yield put(routerRedux.replace('/account/center'));
+        console.log(businessType);
+        if(businessType && businessType == 'admin'){
+          yield put(routerRedux.replace('/'));
         }
-        yield put(routerRedux.replace('/'));
+        yield put(routerRedux.replace('/dashboards'));
       }
     },
 

@@ -8,8 +8,7 @@ import { Card, Table } from 'antd';
 
 const SalesCard = React.lazy(() => import('./SalesCard'));
 
-@connect(({ chart, user, loading }) => ({
-  chart,
+@connect(({ user, loading }) => ({
   list : user,
   loading: loading.effects['user/fetchHome'],
 }))
@@ -73,7 +72,7 @@ class Analysis extends PureComponent {
     for (let i = 0; i < list.length; i ++) {
       const {businessName,exchangeShoppingSpot} = list[i];
       salesData.push({
-        x: businessName || '-',
+        x: `${businessName || '-'}`,
         y: exchangeShoppingSpot || 0,
       });
     }
@@ -112,6 +111,7 @@ class Analysis extends PureComponent {
           <SalesCard
             salesData={salesData}
             loading={loading}
+            title={'门店当月购物点兑换柱状图'}
           />
         </Suspense>
         <div className={styles.twoColLayout}>

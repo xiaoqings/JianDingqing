@@ -7,11 +7,11 @@ import { Bar } from '@/components/Charts';
 const { TabPane } = Tabs;
 
 const SalesCard = memo(
-  ({ salesData, handleRangePickerChange, loading }) => (
+  ({ salesData, handleRangePickerChange, loading ,title}) => (
     <Card loading={loading} bordered={false} bodyStyle={{ padding: 0 }}>
       <div className={styles.salesCard}>
         <Tabs size="large" tabBarStyle={{ marginBottom: 24 }}>
-          <TabPane tab={'门店当月购物点兑换柱状图'} key="sales">
+          <TabPane tab={title} key="sales">
             <div className={styles.salesBar}>
               <Bar
                 height={400}
