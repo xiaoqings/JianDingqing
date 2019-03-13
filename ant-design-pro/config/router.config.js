@@ -24,27 +24,21 @@ export default [
         name: '系统首页',
         icon: 'home',
         component: './Dashboard/Analysis',
-        // authority: ['admin'],
+        authority: ['admin'],
       },
       {
-        // path: '/merchants',
+        path: '/dashboard',
+        name: '系统首页',
+        icon: 'home',
+        component: './Dashboard/Analysis',
+        authority: ['user'],
+      },
+      {
         name: '商家管理',
         icon: 'table',
         authority: ['admin'],
         path: '/merchants/merchants',
-        component: './Merchants/Merchants',
-        // routes: [
-        //   {
-        //     name: '商家入驻',
-        //     path: '/merchants/merchant',
-        //     component: './Merchants/Merchant',
-        //   },
-        //   {
-        //     name: '商家列表',
-        //     path: '/merchants/merchants',
-        //     component: './Merchants/Merchants',
-        //   },
-        // ],
+        component: './Merchants/Merchants'
       },
       {
         path: '/account/shopping',
@@ -52,34 +46,6 @@ export default [
         icon: 'bars',
         component: './Account/Center/Shopping',
       },
-      // {
-      //   path: '/account/center',
-      //   name: '个人中心',
-      //   icon: 'user',
-      //   component: './Account/Center/Center',
-      //   routes: [
-      //     {
-      //       path: '/account/shopping',
-      //       redirect: '/account/center/shopping',
-      //     },
-      //     {
-      //       path: '/account/center',
-      //       redirect: '/account/center/articles',
-      //     },
-      //     {
-      //       path: '/account/center/articles',
-      //       component: './Account/Center/Articles',
-      //     },
-      //     {
-      //       path: '/account/center/applications',
-      //       component: './Account/Center/Applications',
-      //     },
-      //     {
-      //       path: '/account/center/projects',
-      //       component: './Account/Center/Projects',
-      //     },
-      //   ],
-      // },
       {
         path: '/account/settings',
         name: '个人中心',
