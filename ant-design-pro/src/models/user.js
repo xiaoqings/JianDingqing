@@ -165,6 +165,26 @@ export default {
       message.success(`${payload.customerPhone} 用户, 你已成功兑换 ${payload.money} 购物点数!`);
     },
 
+    // todo 保存设置核销时间
+    *saveSetting({payload}, { call, put }) {
+      let response = yield request('/api/detail/setWOTime', { method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据提交失败!');
+      }
+      message.success(`提交成功!`);
+    },
+
+    // todo 核销购物点
+    *HeXiaoShpping({payload}, { call, put }) {
+      let response = yield request('/api/detail/writeOff', { method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据核销失败!');
+      }
+      message.success(`提交成功!`);
+    },
+
   },
 
   reducers: {
@@ -181,6 +201,6 @@ export default {
         ...state,
         currentUser: payload || {},
       };
-    }
+    },
   },
 };

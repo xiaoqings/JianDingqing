@@ -1,17 +1,21 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
-import { Table, Card, Form, Input, Divider, Modal, Button, DatePicker, message} from 'antd';
+import { Table, Card, Form, Input, Divider, Modal, Button, DatePicker, message, Radio, Select, Row, Col } from 'antd';
 import { getDateString } from '../../utils/utils';
 
 const Search = Input.Search;
-const { RangePicker } = DatePicker;
 
-const dateFormat = 'YYYY-MM-DD HH:mm:ss';
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
+const Option = Select.Option;
+
+const dateFormat = 'YYYY-MM-DD';
 
 @connect(({ list, loading }) => ({
   list,
   loading: loading.effects['list/fetchBusinessList'],
+  isSubmit: loading.effects['user/saveSetting'],
 }))
 @Form.create()
 export default class Merchants extends PureComponent {
@@ -19,6 +23,9 @@ export default class Merchants extends PureComponent {
     super();
 
     this.state = {
+      defaultType : 1,
+      startDate : 1,
+      endDate : 10,
     };
 
     this.pages = {
@@ -68,15 +75,45 @@ export default class Merchants extends PureComponent {
         render: val => <span>{getDateString(val)}</span>,
       },
       {
+        title: '核销时间',
+        width : '200px',
+        render: (text, record) => {
+          let type = record.setType || 1;
+          let start = record.startDate || '无';
+          let end = record.endDate || '无';
+          let result = <a >{start} 至 {end}</a>;
+          if(type === 1){
+            start = record.startDate || 1;
+            end = record.endDate || 1;
+            result = <a >{`每月${start}号-${end}号`}</a>;
+          }
+          return (<Fragment>{result}</Fragment>);
+        },
+      },
+      {
         title: '操作',
         dataIndex: 'createAt',
         width : '200px',
         render: (text, record) => {
+          let type = record.setType || 1;
+          let start = record.startDate || new Date;
+          let end = record.endDate || new Date;
+          if(type === 1){
+            start = record.startDate || 1;
+            end = record.endDate || 1;
+          }
           return (
             <Fragment>
               <a onClick={() => this.setState({visible:true, type : 2,infoCode :record.businessCode })}>核销记录</a>
               <Divider type="vertical" />
-              <a >设置核销时间</a>
+              <a onClick={() => this.setState({
+                showTimeModal:true,
+                infoCode :record.businessCode,
+                info:record,
+                defaultType : type,
+                startDate : start ,
+                endDate : end,
+              })} >设置核销时间</a>
             </Fragment>
           );
         },
@@ -87,11 +124,16 @@ export default class Merchants extends PureComponent {
   componentWillReceiveProps(nextProps) {
     const {
       list: { page },
+      isSubmit
     } = nextProps;
     if (page) {
       this.pages.pageIndex = page.pageIndex || 1;
       this.pages.pageSize = page.pageSize || 1;
       this.pages.pageCount = page.totalCount || 1;
+    }
+
+    if(isSubmit){
+      this.setState({showTimeModal : false})
     }
   }
 
@@ -123,13 +165,40 @@ export default class Merchants extends PureComponent {
     });
   };
 
+  // todo  保存时间设置
+  _saveSetting = () => {
+    const { dispatch } = this.props;
+    const {defaultType,startDate,endDate,infoCode} = this.state;
+    if(defaultType === 1 ){
+      if(startDate > endDate){
+        return message.warn('开始日期不能大于结束日期!');
+      }
+    }else {
+      if(new Date(startDate).getTime() > new Date(endDate).getTime()){
+        return message.warn('开始日期不能大于结束日期!');
+      }
+    }
+
+    const params = {
+      setType : defaultType,
+      businessCode : infoCode,
+      startDate,
+      endDate,
+    };
+    dispatch({
+      type: 'user/saveSetting',
+      payload: params,
+    });
+  };
+
   render() {
     const {
       list: { list },
       loading = false,
+      isSubmit = false
     } = this.props;
 
-    const { searchValue, type = 1,infoCode = null} = this.state;
+    const { searchValue, type = 1,infoCode = null, info = null} = this.state;
 
     return (
       <Card bordered={false}>
@@ -153,6 +222,7 @@ export default class Merchants extends PureComponent {
             }}
           />
         </div>
+
         <Table
           loading={loading}
           dataSource={list}
@@ -184,8 +254,102 @@ export default class Merchants extends PureComponent {
           />
         </Modal>
 
+        <Modal
+          width={'80%'}
+          title={`设置【${info ? info.businessName : '-'}】商家核销时间`}
+          visible={this.state.showTimeModal || false}
+          maskClosable={false}
+          onCancel={() => this.setState({showTimeModal:false})}
+          footer={[
+            <Button key="back" type={'primary'} onClick={isSubmit ? () => {} : () => this._saveSetting()}>
+              {isSubmit ? '保存中..' : '保存设置'}
+            </Button>,
+            <Button key="back" onClick={() => this.setState({showTimeModal:false})}>{'关闭'}</Button>,
+          ]}
+        >
+          <RadioGroup
+            onChange={(e) =>  {
+              let num = parseInt(e.target.value);
+              let obj = {defaultType:num};
+              if(num === 1){
+                obj.startDate = 1;
+                obj.endDate = 10;
+              }else {
+                obj.startDate = new Date();
+                obj.endDate = new Date();
+              }
+              this.setState({...obj})
+            }}
+            value={this.state.defaultType}
+          >
+            <RadioButton value={1}>按月</RadioButton>
+            <RadioButton value={2}>自定义</RadioButton>
+          </RadioGroup>
+          {this.getRender()}
+        </Modal>
+
       </Card>
     );
+  }
+
+  getRender = () => {
+    const {defaultType,startDate,endDate} = this.state;
+    let result = null;
+    switch (defaultType) {
+      case 1:
+        let arr = [];
+        for(let i = 1; i <= 31; i++){
+          arr.push(i)
+        }
+        result = (
+          <Row gutter={6} >
+            <Col xs={24} md={10} style={{marginTop:10}}>
+              {'开始时间 : '}
+              <Select
+                value={startDate}
+                placeholder={'请选择核销的开始日期'}
+                style={{width:'100%'}}
+                onChange={(value) => this.setState({startDate:parseInt(value)})}>
+                {arr.map((val,i) => (<Option key={i} value={val}>{`${val}号`}</Option>))}
+              </Select>
+            </Col>
+            <Col xs={24} md={10} style={{marginTop:10}} >
+              {'结束时间 : '}
+              <Select
+                value={endDate}
+                placeholder={'请选择核销的结束日期'}
+                style={{width:'100%'}}
+                onChange={(value) => this.setState({endDate:parseInt(value)})}>
+                {arr.map((val,i) => (<Option key={i} value={val}>{`${val}号`}</Option>))}
+              </Select>
+            </Col>
+          </Row>
+
+        );
+        break;
+      case 2:
+        result = (
+          <Row gutter={6} >
+            <Col xs={24} md={10} style={{marginTop:10}}>
+              {'开始日期 : '}
+              <DatePicker
+                value={moment(startDate,dateFormat)}
+                onChange={(date, dateString) => this.setState({ startDate: dateString})}
+              />
+            </Col>
+            <Col xs={24} md={10} style={{marginTop:10}} >
+              {'结束日期 : '}
+              <DatePicker
+                value={moment(endDate,dateFormat)}
+                onChange={(date, dateString) => this.setState({ endDate: dateString})}
+              />
+            </Col>
+          </Row>
+        );
+        break;
+
+    }
+    return result;
   }
 }
 

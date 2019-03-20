@@ -27,10 +27,10 @@ export default [
         authority: ['admin'],
       },
       {
-        path: '/dashboard',
+        path: '/dashboards',
         name: '系统首页',
         icon: 'home',
-        component: './Dashboard/Analysis',
+        component: './Dashboard/UserAnalysis',
         authority: ['user'],
       },
       {

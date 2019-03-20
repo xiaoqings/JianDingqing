@@ -8,13 +8,15 @@ import Authorized from '@/utils/Authorized';
 
 const Search = Input.Search;
 const { RangePicker } = DatePicker;
-const dateFormat = 'YYYY-MM-DD HH:mm:ss';
+const dateFormat = 'YYYY-MM-DD';
 
 @connect(({ user,loading }) => ({
   list : user,
+  currentUser: user.currentUser,
   loading: loading.effects['user/fetchList'],
   isSubmit: loading.effects['user/addShopping'],
   submitting: loading.effects['user/deleteShopping'],
+  isHeXiao: loading.effects['user/HeXiaoShpping'],
 }))
 @Form.create()
 export default  class Shopping extends PureComponent {
@@ -33,7 +35,7 @@ export default  class Shopping extends PureComponent {
 
     this.pages = {
       pageIndex: 1,
-      pageSize: 2,
+      pageSize: 5,
       pageCount: 0,
     };
 
@@ -81,13 +83,15 @@ export default  class Shopping extends PureComponent {
   }
 
   getData = () => {
-    const { dispatch } = this.props;
-    const { searchValue, startDate, endDate } = this.state;
+    const { dispatch,currentUser } = this.props;
+    const { searchValue,startDate, endDate } = this.state;
+    console.log('currentUser ==> ',currentUser);
     const params = {
       pageIndex: this.pages.pageIndex,
       pageSize: this.pages.pageSize,
       startTime: startDate,
       endTime: endDate,
+      businessCode : currentUser.userid,
       customerPhone: searchValue || '',
     };
     dispatch({
@@ -111,6 +115,22 @@ export default  class Shopping extends PureComponent {
     });
   };
 
+  // todo  核销购物点
+  _HeXiaoShpping = () => {
+    const { dispatch ,currentUser,isHeXiao=false} = this.props;
+    if(isHeXiao){
+      return false;
+    }
+    console.log(currentUser);
+    dispatch({
+      type: 'user/HeXiaoShpping',
+      payload: {
+        businessCode : currentUser.userid
+      },
+    });
+  };
+
+
   // todo 添加或者删除购物点
   handleSubmit1 = (e) => {
     e.preventDefault();
@@ -125,7 +145,6 @@ export default  class Shopping extends PureComponent {
       }
     });
   };
-
   // 发送短信验证码
   onGetCaptcha = () => {
     const { dispatch } = this.props;
@@ -156,6 +175,7 @@ export default  class Shopping extends PureComponent {
       form,
       submitting = false,
       isSubmit = false,
+      isHeXiao = false,
     } = this.props;
     const { getFieldDecorator } = form;
     const {startDate, endDate, visible = false,count,mobile,money} = this.state;
@@ -191,7 +211,7 @@ export default  class Shopping extends PureComponent {
               }}
             />
             <Search
-              placeholder="搜索"
+              placeholder={'顾客电话'}
               value={this.state.searchValue || ''}
               onChange={(e) => this.setState({ searchValue: e.target.value })}
               onSearch={() => this.getData()}
@@ -217,13 +237,14 @@ export default  class Shopping extends PureComponent {
             }}
           />
         </div>
+
         <Authorized authority={['user']} >
           <Button
             style={{marginTop:10,width:'100%'}}
             type="primary" icon="swap" size={20}
-            onClick={() =>{}}
+            onClick={this._HeXiaoShpping}
           >
-            {'核销购物点'}
+            {isHeXiao ? '正在核销处理...' : '核销购物点'}
           </Button>
         </Authorized>
 
