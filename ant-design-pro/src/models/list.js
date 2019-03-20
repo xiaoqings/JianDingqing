@@ -20,7 +20,7 @@ export default {
 
     // todo 查询用户登录日志
     *fetchBusinessList({ payload }, { call, put }) {
-      let response = yield request('/detail/list', { method: 'POST', body: payload });
+      let response = yield request('/api/detail/list', { method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message);
@@ -33,7 +33,7 @@ export default {
 
     // todo 查询用户登录日志
     *fetchLog({ payload }, { call, put }) {
-      let response = yield request('/record/list', { method: 'POST', body: payload });
+      let response = yield request('/api/record/list', { method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message);

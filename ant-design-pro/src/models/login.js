@@ -16,7 +16,7 @@ export default {
 
   effects: {
     *login({ payload }, { call, put }) {
-      let response = yield request('/lr/login', { method: 'POST', body: payload });
+      let response = yield request('/api/lr/login', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message);
       }
@@ -67,7 +67,7 @@ export default {
     },
 
     *logout(_, { put }) {
-      let response = yield request('/lr/loginOut');
+      let response = yield request('/api/lr/loginOut');
 
       yield put({
         type: 'changeLoginStatus',
@@ -91,7 +91,7 @@ export default {
     // todo 修改密码
     *updatePassword({payload}, { put }) {
       console.log(payload);
-      let response = yield request('/lr/up', { method: 'POST', body: payload });
+      let response = yield request('/api/lr/up', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message);
       }
