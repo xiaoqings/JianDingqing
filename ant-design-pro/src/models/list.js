@@ -10,14 +10,6 @@ export default {
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(queryFakeList, payload);
-      yield put({
-        type: 'queryList',
-        payload: Array.isArray(response) ? response : [],
-      });
-    },
-
     // todo 查询用户登录日志
     *fetchBusinessList({ payload }, { call, put }) {
       let response = yield request('/api/detail/list', { method: 'POST', body: payload });
@@ -38,27 +30,6 @@ export default {
       if (!(response && response.status === 200)) {
         return message.error(response.message);
       }
-      yield put({
-        type: 'queryList',
-        payload: response,
-      });
-    },
-
-    *appendFetch({ payload }, { call, put }) {
-      const response = yield call(queryFakeList, payload);
-      yield put({
-        type: 'appendList',
-        payload: Array.isArray(response) ? response : [],
-      });
-    },
-    *submit({ payload }, { call, put }) {
-      let callback;
-      if (payload.id) {
-        callback = Object.keys(payload).length === 1 ? removeFakeList : updateFakeList;
-      } else {
-        callback = addFakeList;
-      }
-      const response = yield call(callback, payload); // post
       yield put({
         type: 'queryList',
         payload: response,

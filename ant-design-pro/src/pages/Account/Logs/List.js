@@ -3,26 +3,27 @@ import { connect } from 'dva';
 import { Table, Card, Form, Input, DatePicker } from 'antd';
 import styles from '../../List/TableList.less';
 import moment from 'moment';
-import { getDateString } from '../../../utils/utils';
+import {getFirstAndLastMonthDay } from '../../../utils/utils';
 
 const Search = Input.Search;
 
 const { RangePicker } = DatePicker;
 
-const dateFormat = 'YYYY-MM-DD HH:mm:ss';
+const dateFormat = 'YYYY-MM-DD';
 
 @connect(({ list, loading }) => ({
   list,
   loading: loading.effects['list/fetchLog'],
 }))
 @Form.create()
+
 class List extends PureComponent {
   constructor() {
     super();
 
     this.state = {
-      startDate: getDateString(new Date()),
-      endDate: getDateString(new Date()),
+      startDate: getFirstAndLastMonthDay().firstdate,
+      endDate: getFirstAndLastMonthDay().lastdate,
     };
 
     this.pages = {

@@ -54,7 +54,7 @@ export default [
         routes: [
           {
             path: '/account/settings',
-            redirect: '/account/settings/base',
+            redirect: '/account/settings/center',
           },
           {
             path: '/account/settings/center',

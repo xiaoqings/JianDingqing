@@ -80,7 +80,7 @@ export default {
     *fetchCurrent({}, { call, put }) {
       let res = JSON.parse(window.localStorage.getItem('currUser'));
       if (res === null) {
-        yield put(routerRedux.replace('/api/user/login'));
+        yield put(routerRedux.replace('/user/login'));
       }
       yield put({
         type: 'saveCurrentUser',
@@ -145,24 +145,22 @@ export default {
 
     // todo 充值购物点数
     *addShopping({payload}, { call, put }) {
-      let response = yield request('/api/ssr/create', { method: 'POST', body: payload });
-      console.log(response);
-      if (!(response && response.status === 200)) {
-        return message.error(response.message || '购物点数充值失败!');
+      console.log(payload);
+      const {type} = payload;
+      if(type === 1){
+        let response = yield request('/api/ssr/create', { method: 'POST', body: payload });
+        if (!(response && response.status === 200)) {
+          return message.error(response.message || '购物点数充值失败!');
+        }
+        message.success(`${payload.customerPhone} 用户, 成功充值 ${payload.money} 购物点数!`);
+      }else {
+        payload.consumptionShoppingSpot = payload.money;
+        let response = yield request('/api/ssc/create', { method: 'POST', body: payload });
+        if (!(response && response.status === 200)) {
+          return message.error(response.message || '购物点数兑换失败!');
+        }
+        message.success(`${payload.customerPhone} 用户, 你已成功兑换 ${payload.money} 购物点数!`);
       }
-      message.success(`${payload.customerPhone} 用户, 成功充值 ${payload.money} 购物点数!`);
-    },
-
-    // todo 购物点消费
-    *deleteShopping({payload}, { call, put }) {
-      payload.customerPhone = payload.phone;
-      payload.consumptionShoppingSpot = payload.money;
-      let response = yield request('/api/ssc/create', { method: 'POST', body: payload });
-      console.log(response);
-      if (!(response && response.status === 200)) {
-        return message.error(response.message || '购物点数兑换失败!');
-      }
-      message.success(`${payload.customerPhone} 用户, 你已成功兑换 ${payload.money} 购物点数!`);
     },
 
     // todo 保存设置核销时间
@@ -189,7 +187,6 @@ export default {
 
   reducers: {
     save(state, {payload}) {
-      console.log('00000000000000',payload);
       return {
         ...state,
         list: payload.data || [],

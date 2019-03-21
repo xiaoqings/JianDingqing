@@ -10,7 +10,7 @@ import getPageTitle from '../utils/getPageTitle';
 
 const copyright = (
   <Fragment>
-    Copyright <Icon type="copyright" /> 2013 简小青个人出品
+    Copyright <Icon type="copyright" /> 2019年03月20日
   </Fragment>
 );
 

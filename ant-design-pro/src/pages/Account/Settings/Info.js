@@ -13,24 +13,22 @@ const { Item } = Menu;
 class Info extends Component {
   constructor(props) {
     super(props);
-    const { match, location } = props;
     const menuMap = {
       center: '基本信息',
       base: '修改信息',
       security: '修改密码',
     };
-    const key = location.pathname.replace(`${match.path}/`, '');
     this.state = {
       mode: 'inline',
       menuMap,
-      selectKey: menuMap[key] ? key : 'center',
+      selectKey: 'center',
     };
   }
 
   static getDerivedStateFromProps(props, state) {
     const { match, location } = props;
     let selectKey = location.pathname.replace(`${match.path}/`, '');
-    selectKey = state.menuMap[selectKey] ? selectKey : 'base';
+    selectKey = state.menuMap[selectKey] ? selectKey : 'center';
     if (selectKey !== state.selectKey) {
       return { selectKey };
     }

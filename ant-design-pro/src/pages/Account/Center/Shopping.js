@@ -15,10 +15,10 @@ const dateFormat = 'YYYY-MM-DD';
   currentUser: user.currentUser,
   loading: loading.effects['user/fetchList'],
   isSubmit: loading.effects['user/addShopping'],
-  submitting: loading.effects['user/deleteShopping'],
   isHeXiao: loading.effects['user/HeXiaoShpping'],
 }))
 @Form.create()
+
 export default  class Shopping extends PureComponent {
   constructor() {
     super();
@@ -78,7 +78,6 @@ export default  class Shopping extends PureComponent {
       this.pages.pageSize = page.pageSize || 1;
       this.pages.pageCount = page.totalCount || 1;
     }
-
     this.getData();
   }
 
@@ -103,17 +102,20 @@ export default  class Shopping extends PureComponent {
   // todo 添加购物点
   handleSubmit = (e) => {
     e.preventDefault();
-    const {form,dispatch,isSubmit=false} = this.props;
+    const {form,dispatch,isSubmit=false,type=1} = this.props;
     if(isSubmit){return false;}
     form.validateFields((err, values) => {
       if (!err) {
+        values.type = type;
         dispatch({
           type: 'user/addShopping',
           payload: { ...values },
         });
+        this.setState({visible:false});
       }
     });
   };
+
 
   // todo  核销购物点
   _HeXiaoShpping = () => {
@@ -131,20 +133,6 @@ export default  class Shopping extends PureComponent {
   };
 
 
-  // todo 添加或者删除购物点
-  handleSubmit1 = (e) => {
-    e.preventDefault();
-    const {form,dispatch,submitting=false} = this.props;
-    if(submitting){return false;}
-    form.validateFields((err, values) => {
-      if (!err) {
-        dispatch({
-          type: 'user/deleteShopping',
-          payload: { ...values },
-        });
-      }
-    });
-  };
   // 发送短信验证码
   onGetCaptcha = () => {
     const { dispatch } = this.props;
@@ -173,12 +161,11 @@ export default  class Shopping extends PureComponent {
       list: { list },
       loading = false,
       form,
-      submitting = false,
       isSubmit = false,
       isHeXiao = false,
     } = this.props;
     const { getFieldDecorator } = form;
-    const {startDate, endDate, visible = false,count,mobile,money} = this.state;
+    const {startDate, endDate, visible = false,type = 1,mobile,money} = this.state;
     return (
       <Card bordered={false}>
         <h2 style={{textAlign:'center',fontWeight:600}} >{'购物点管理'}</h2>
@@ -187,7 +174,7 @@ export default  class Shopping extends PureComponent {
             <Button
               style={{marginTop:10,width:'100%'}}
               type="primary" icon="pay-circle" size={20}
-              onClick={() => this.setState({visible:true})}
+              onClick={() => this.setState({visible:true,type : 1,})}
             >
               {'充值购物点'}
             </Button>
@@ -195,7 +182,7 @@ export default  class Shopping extends PureComponent {
           <Button
             style={{marginTop:10,width:'100%'}}
             type="primary" icon="swap" size={20}
-            onClick={() => this.setState({visible1:true})}
+            onClick={() => this.setState({visible:true,type : 2})}
           >
             {'购物点兑换商品'}
           </Button>
@@ -249,7 +236,7 @@ export default  class Shopping extends PureComponent {
         </Authorized>
 
         <Modal
-          title={'购物点充值'}
+          title={type === 1 ? '购物点充值' : '购物点数兑换商品'}
           visible={visible}
           maskClosable={false}
           onCancel={() => this.setState({visible:false})}
@@ -274,7 +261,7 @@ export default  class Shopping extends PureComponent {
               })(
                 <InputNumber
                   style={{width:'100%'}}
-                  placeholder="充值购物点数"
+                  placeholder={type === 1 ? "充值购物点数" : '兑换购物点数'}
                   formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   parser={value => value.replace(/\$\s?|(,*)/g, '')}
                   prefix={<Icon type="money-collec" style={{ color: 'rgba(0,0,0,.25)' }} />}
@@ -283,77 +270,8 @@ export default  class Shopping extends PureComponent {
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" style={{width:'100%'}} >
-                {isSubmit ? '提交中...' : '立即充值'}
-                </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        <Modal
-          title={'购物点数兑换商品'}
-          visible={this.state.visible1}
-          maskClosable={false}
-          onCancel={() => this.setState({visible1:false})}
-          footer={[
-            <Button key="back" onClick={() => this.setState({visible1:false})}>{'关闭'}</Button>,
-          ]}
-        >
-          <Form onSubmit={this.handleSubmit1} className="login-form">
-            <Form.Item>
-              {getFieldDecorator('phone', {
-                initialValue : mobile,
-                rules: [{ required: true, message: '请输入手机号!' }],
-              })(
-                <Input
-                  prefix={<Icon type="phone" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                  onChange={e => this.setState({ mobile: e.target.value })}
-                  placeholder="手机号"
-                />
-              )}
-            </Form.Item>
-            <Form.Item>
-              {getFieldDecorator('money', {
-                initialValue : money,
-                rules: [{ required: true, message: '请输入购物点数!' }],
-              })(
-                <InputNumber
-                  style={{width:'100%'}}
-                  placeholder="充值购物点数"
-                  formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                  prefix={<Icon type="money-collec" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                  onChange={e => this.setState({ money: e })}
-                />
-              )}
-            </Form.Item>
-            {/*<Form.Item>*/}
-              {/*<Row gutter={8}>*/}
-                {/*<Col span={16}>*/}
-                  {/*{getFieldDecorator('captcha', {*/}
-                    {/*rules: [*/}
-                      {/*{*/}
-                        {/*required: true,*/}
-                        {/*message: '请输入验证码',*/}
-                      {/*},*/}
-                    {/*],*/}
-                  {/*})(<Input size="large" placeholder={'验证码'} />)}*/}
-                {/*</Col>*/}
-                {/*<Col span={8}>*/}
-                  {/*<Button*/}
-                    {/*size="large"*/}
-                    {/*disabled={count}*/}
-                    {/*style={{display: 'block', width:'100%'}}*/}
-                    {/*onClick={this.onGetCaptcha}*/}
-                  {/*>*/}
-                    {/*{count ? `${count} s` : '获取验证码'}*/}
-                  {/*</Button>*/}
-                {/*</Col>*/}
-              {/*</Row>*/}
-            {/*</Form.Item>*/}
-            <Form.Item>
-              <Button type="primary" htmlType="submit" style={{width:'100%'}} >
-                {submitting? '提交中...' : '立即兑换'}
-                </Button>
+                {isSubmit? '提交中...' : (type === 1 ? '立即充值' : '立即兑换')}
+              </Button>
             </Form.Item>
           </Form>
         </Modal>

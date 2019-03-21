@@ -18,7 +18,7 @@ const FooterView = () => (
       }
       copyright={
         <Fragment>
-          Copyright <Icon type="copyright" /> 2019 XXXX出品
+          Copyright <Icon type="copyright" /> 2019年03月20日
         </Fragment>
       }
     />

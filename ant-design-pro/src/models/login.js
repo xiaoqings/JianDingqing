@@ -55,10 +55,11 @@ export default {
         yield put(routerRedux.replace('/account/settings'));
       } else {
         console.log(businessType);
-        if(businessType && businessType == 'admin'){
+        if(businessType == 'admin'){
           yield put(routerRedux.replace('/'));
+        }else {
+          yield put(routerRedux.replace('/dashboards'));
         }
-        yield put(routerRedux.replace('/dashboards'));
       }
     },
 
