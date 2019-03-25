@@ -122,7 +122,10 @@ export default {
 
     // todo 修改用户头像
     *updateAvatar({payload}, { call, put }) {
+      console.log('lr/upload ==> ',{...payload});
       let response = yield request('/api/lr/upload', { method: 'POST', body: payload });
+      console.log(response);
+
       if (!(response && response.status === 200)) {
         return message.error(response.message || '头像设置失败!');
       }
@@ -148,7 +151,7 @@ export default {
         businessName : name,
         businessPhone : phone
       };
-      let response = yield request('/api/detail/create', { method: 'POST', body: params });
+      let response = yield request('/api/detail/updateDetail', { method: 'POST', body: params });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '信息修改失败!');
       }
