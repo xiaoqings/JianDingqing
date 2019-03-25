@@ -161,7 +161,6 @@ class BaseView extends Component {
         </div>
         <div className={styles.right}>
           <Upload
-            name="avatar"
             listType="picture-card"
             className="avatar-uploader"
             showUploadList={false}
