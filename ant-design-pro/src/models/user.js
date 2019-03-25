@@ -173,6 +173,7 @@ export default {
       console.log(payload);
       const {type} = payload;
       if(type === 1){
+        console.log('充值购物点数',type);
         let response = yield request('/api/ssr/create', { method: 'POST', body: payload });
         if (!(response && response.status === 200)) {
           return message.error(response.message || '购物点数充值失败!');

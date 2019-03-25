@@ -63,11 +63,14 @@ export default  class Shopping extends PureComponent {
     this.props = {
       ...nextProps
     };
-    const { list: { page }, } = nextProps;
+    const { list: { page },isSubmit } = nextProps;
     if (page) {
       this.pages.pageIndex = page.pageIndex || 1;
       this.pages.pageSize = page.pageSize || 1;
       this.pages.pageCount = page.totalCount || 1;
+    }
+    if(isSubmit){
+      this.getData();
     }
   }
 
@@ -102,11 +105,11 @@ export default  class Shopping extends PureComponent {
   // todo 添加购物点
   handleSubmit = (e) => {
     e.preventDefault();
-    const {form,dispatch,isSubmit=false,type=1} = this.props;
+    const {form,dispatch,isSubmit=false,type} = this.props;
     if(isSubmit){return false;}
     form.validateFields((err, values) => {
       if (!err) {
-        values.type = type;
+        values.type = this.state.type;
         dispatch({
           type: 'user/addShopping',
           payload: { ...values },
@@ -115,7 +118,6 @@ export default  class Shopping extends PureComponent {
       }
     });
   };
-
 
   // todo  核销购物点
   _HeXiaoShpping = () => {
@@ -130,30 +132,6 @@ export default  class Shopping extends PureComponent {
         businessCode : currentUser.userid
       },
     });
-  };
-
-
-  // 发送短信验证码
-  onGetCaptcha = () => {
-    const { dispatch } = this.props;
-    const { mobile , money} = this.state;
-    if (!mobile || !money) {
-      return message.error('请输入手机号!');
-    }
-    dispatch({
-      type: 'register/send',
-      payload: { mobile },
-    });
-
-    let count = 59;
-    this.setState({ count });
-    this.interval = setInterval(() => {
-      count -= 1;
-      this.setState({ count });
-      if (count === 0) {
-        clearInterval(this.interval);
-      }
-    }, 1000);
   };
 
   render() {
@@ -174,7 +152,7 @@ export default  class Shopping extends PureComponent {
             <Button
               style={{marginTop:10,width:'100%'}}
               type="primary" icon="pay-circle" size={20}
-              onClick={() => this.setState({visible:true,type : 1,})}
+              onClick={() => this.setState({visible:true,type : 1})}
             >
               {'充值购物点'}
             </Button>

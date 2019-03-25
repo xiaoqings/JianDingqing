@@ -63,10 +63,6 @@ export default {
       }
     },
 
-    *getCaptcha({ payload }, { call }) {
-      yield call(getFakeCaptcha, payload);
-    },
-
     *logout(_, { put }) {
       let response = yield request('/api/lr/loginOut');
 
@@ -91,7 +87,6 @@ export default {
 
     // todo 修改密码
     *updatePassword({payload}, { put }) {
-      console.log(payload);
       let response = yield request('/api/lr/up', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message);
@@ -106,6 +101,41 @@ export default {
         },
       });
       reloadAuthorized();
+      yield put(
+        routerRedux.push({
+          pathname: '/user/login',
+          search: stringify({ redirect: window.location.href}),
+        })
+      );
+    },
+
+    // todo 发送短信验证码
+    *getCaptcha({ payload }, { call }) {
+      payload = { businessPhone: payload.mobile };
+      console.log(payload);
+      let response = yield request('/api/lr/forgetPassSendSms', { method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '验证码发送失败!');
+      }
+      message.success('验证码已发送,请注意查收!');
+      console.log(response);
+    },
+
+    // todo 忘记密码
+    *resetPassword({payload}, { put }) {
+      console.log(payload);
+      let params = {
+        businessPhone: payload.mobile,
+        code : payload.captcha,
+        businessPassword : payload.password,
+        confirmPassword : payload.confirmPassword,
+      };
+      let response = yield request('/api/lr/forgetPassword', { method: 'POST', body: params });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message);
+      }
+      message.success('密码密码重置,请登录!');
       yield put(
         routerRedux.push({
           pathname: '/user/login',

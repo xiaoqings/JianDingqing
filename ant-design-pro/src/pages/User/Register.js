@@ -6,7 +6,6 @@ import { Form, Input, Button, Select, Row, Col, Popover, Progress, message } fro
 import styles from './Register.less';
 
 const FormItem = Form.Item;
-const { Option } = Select;
 const InputGroup = Input.Group;
 
 const passwordStatusMap = {

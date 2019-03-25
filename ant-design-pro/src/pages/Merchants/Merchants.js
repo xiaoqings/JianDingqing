@@ -157,7 +157,7 @@ export default class Merchants extends PureComponent {
       pages: {
         ...this.pages,
       },
-      searchValue: this.state.searchValue || '',
+      queryParam: this.state.searchValue || '',
     };
     dispatch({
       type: 'list/fetchBusinessList',
@@ -213,10 +213,10 @@ export default class Merchants extends PureComponent {
           <h2>{'商家管理列表'}</h2>
           <Search
             style={{ width: 300 }}
-            value={searchValue || ''}
+            defaultValue={searchValue || ''}
             placeholder={'搜索名称/联系人/电话号码'}
             enterButton="搜索"
-            onSearch={() => {
+            onSearch={(value) => {
               this.pages.pageIndex = 1;
               this.setState({ searchValue: value }, () => this.getData());
             }}

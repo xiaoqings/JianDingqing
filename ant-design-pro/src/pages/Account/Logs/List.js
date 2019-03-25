@@ -117,11 +117,14 @@ class List extends PureComponent {
               }}
             />
             <Search
-              placeholder="搜索"
-              value={searchValue || ''}
-              onSearch={value => this.setState({ searchValue: value }, () => this.getData())}
               style={{ width: 250, marginLeft: 10 }}
-              enterButton
+              defaultValue={searchValue || ''}
+              placeholder={'搜索名称'}
+              enterButton="搜索"
+              onSearch={(value) => {
+                this.pages.pageIndex = 1;
+                this.setState({ searchValue: value }, () => this.getData());
+              }}
             />
           </div>
           <Table
