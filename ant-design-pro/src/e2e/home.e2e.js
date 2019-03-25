@@ -10,6 +10,6 @@ describe('Homepage', () => {
       timeout: 5000,
     });
     const text = await page.evaluate(() => document.getElementsByTagName('h1')[0].innerText);
-    expect(text).toContain('积分,商品兑换系统 3 ');
+    expect(text).toContain('微莱美商城');
   });
 });

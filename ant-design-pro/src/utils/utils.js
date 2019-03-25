@@ -246,11 +246,11 @@ export const getFirstAndLastMonthDay = (time) => {
   if(da1 < 10) da1 = `0${da1}`;
 
   // 当月的第一天
-  const   firstdate = `${year}${month}01`;
+  const   firstdate = `${year}-${month}-01`;
   //获取当月最后一天日期
   let  day = new Date(year,month,0).getDate();
   if(day < 10) day = `0${day}`;
-  const lastdate = `${year}${month}${day}`;
+  const lastdate = `${year}-${month}-${day}`;
 
   const today = `${year}${month}${da}`; // 今天
   const yesterday = `${year}${month}${da1}`; // 昨天

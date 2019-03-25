@@ -10,7 +10,7 @@ import getPageTitle from '../utils/getPageTitle';
 
 const copyright = (
   <Fragment>
-    Copyright <Icon type="copyright" /> 2019年03月20日
+    Copyright <Icon type="copyright" /> 微莱美商城所有
   </Fragment>
 );
 
@@ -40,7 +40,7 @@ class UserLayout extends Component {
               <div className={styles.header}>
                 <Link to="/">
                   <img alt="logo" className={styles.logo} src={logo} />
-                  <span className={styles.title}>积分,商品兑换系统</span>
+                  <span className={styles.title}>微莱美商城</span>
                 </Link>
               </div>
               <div className={styles.desc}> </div>

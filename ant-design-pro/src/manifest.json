@@ -1,6 +1,6 @@
 {
-  "name": "积分,商品兑换系统 1",
-  "short_name": "积分,商品兑换系统 short",
+  "name": "微莱美商城",
+  "short_name": "微莱美",
   "display": "standalone",
   "start_url": "./?utm_source=homescreen",
   "theme_color": "#002140",

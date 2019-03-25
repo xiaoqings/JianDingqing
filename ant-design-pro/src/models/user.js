@@ -2,6 +2,9 @@ import { queryCurrent } from '@/services/user';
 import * as routerRedux from 'react-router-redux';
 import request from '../utils/request';
 import { message } from 'antd';
+import { setAuthority } from '../utils/authority';
+import { stringify } from 'qs';
+import { reloadAuthorized } from '../utils/Authorized';
 
 
 export default {
@@ -79,22 +82,41 @@ export default {
     // todo 查询当前登录用户信息
     *fetchCurrent({}, { call, put }) {
       let res = JSON.parse(window.localStorage.getItem('currUser'));
+      console.log('0000000000000000000000000 =====> ',res);
       if (res === null) {
-        yield put(routerRedux.replace('/user/login'));
-      }
-      yield put({
-        type: 'saveCurrentUser',
-        payload: res,
-      });
-      let response = yield request(`/api/detail/bycode/${res.userid}`);
-      if (response && response.status === 200) {
-        const { businessAddress, businessContact, businessName, businessPhone, headerPicPath} = response.data;
-        res.phone = businessPhone || res.phone;
-        res.name = businessName || res.name;
-        res.contact = businessContact || res.contact;
-        res.address = businessAddress || res.address;
-        res.avatar = headerPicPath || res.avatar;
-        window.localStorage.setItem('currUser', JSON.stringify(res));
+        // yield put(routerRedux.replace('/user/login'));
+        yield put({
+          type: 'changeLoginStatus',
+          payload: {
+            user: null,
+            status: false,
+            currentAuthority: 'guest',
+          },
+        });
+        reloadAuthorized();
+        yield put(
+          routerRedux.push({
+            pathname: '/user/login',
+            search: stringify({
+              redirect: window.location.href,
+            }),
+          })
+        );
+      }else {
+        yield put({
+          type: 'saveCurrentUser',
+          payload: res,
+        });
+        let response = yield request(`/api/detail/bycode/${res.userid}`);
+        if (response && response.status === 200) {
+          const { businessAddress, businessContact, businessName, businessPhone, headerPicPath} = response.data;
+          res.phone = businessPhone || res.phone;
+          res.name = businessName || res.name;
+          res.contact = businessContact || res.contact;
+          res.address = businessAddress || res.address;
+          res.avatar = headerPicPath || res.avatar;
+          window.localStorage.setItem('currUser', JSON.stringify(res));
+        }
       }
     },
 
@@ -191,6 +213,15 @@ export default {
         ...state,
         list: payload.data || [],
         page: payload.page || null
+      };
+    },
+    changeLoginStatus(state, { payload }) {
+      console.log('currUser ========> ',payload);
+      setAuthority(payload.currentAuthority);
+      window.localStorage.setItem('currUser', JSON.stringify(payload.user));
+      return {
+        ...state,
+        status: payload.status,
       };
     },
     saveCurrentUser(state, { payload }) {
