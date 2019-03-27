@@ -1,6 +1,6 @@
 {
-  "name": "微莱美商城",
-  "short_name": "微莱美",
+  "name": "微睐美商城",
+  "short_name": "微睐美",
   "display": "standalone",
   "start_url": "./?utm_source=homescreen",
   "theme_color": "#002140",

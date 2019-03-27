@@ -13,11 +13,6 @@ export default class GlobalHeaderRight extends PureComponent {
           <Icon type="user" />
           {'个人中心'}
         </Menu.Item>
-        <Menu.Item key="userinfo">
-          <Icon type="setting" />
-          {'个人设置'}
-        </Menu.Item>
-        <Menu.Divider />
         <Menu.Item key="logout">
           <Icon type="logout" />
           {'退出登录'}
