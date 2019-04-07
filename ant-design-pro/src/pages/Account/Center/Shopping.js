@@ -299,7 +299,7 @@ export default  class Shopping extends PureComponent {
           />
         </div>
 
-        {/*<Authorized authority={['user']} >*/}
+        <Authorized authority={['user']} >
           <Button
             style={{marginTop:10,width:'100%'}}
             type="primary" icon="swap" size={20}
@@ -307,7 +307,7 @@ export default  class Shopping extends PureComponent {
           >
             {isHeXiao ? '正在核销处理...' : '核销购物点'}
           </Button>
-        {/*</Authorized>*/}
+        </Authorized>
 
         <Modal
           title={type === 1 ? '购物点充值' : '购物点数兑换商品'}

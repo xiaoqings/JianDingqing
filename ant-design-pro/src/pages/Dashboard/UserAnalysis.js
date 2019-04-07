@@ -75,8 +75,7 @@ class UserAnalysis extends PureComponent {
   };
 
   render() {
-    const { list : {list,dateList}, loading ,currentUser} = this.props;
-
+    const { list : { list, dateList}, loading ,currentUser} = this.props;
     const salesData = [];
     for (let i = 0; i < dateList.length; i ++) {
       const {day,totalShoppingSpot} = dateList[i];
@@ -110,29 +109,29 @@ class UserAnalysis extends PureComponent {
             title={title}
           />
         </Suspense>
-        <div className={styles.twoColLayout}>
-          <Card
-            loading={loading}
-            bordered={false}
-            title={title}
-            style={{ marginTop: 24 }}
-          >
-            <Table
-              loading={loading}
-              dataSource={list}
-              columns={columns}
-              pagination={{
-                current: this.pages.pageIndex,
-                pageSize: this.pages.pageSize,
-                total: this.pages.pageCount,
-              }}
-              onChange={pagination => {
-                this.pages.pageIndex = pagination.current;
-                this.getData();
-              }}
-            />
-          </Card>
-        </div>
+        {/*<div className={styles.twoColLayout}>*/}
+          {/*<Card*/}
+            {/*loading={loading}*/}
+            {/*bordered={false}*/}
+            {/*title={title}*/}
+            {/*style={{ marginTop: 24 }}*/}
+          {/*>*/}
+            {/*<Table*/}
+              {/*loading={loading}*/}
+              {/*dataSource={list.sscList || []}*/}
+              {/*columns={columns}*/}
+              {/*pagination={{*/}
+                {/*current: this.pages.pageIndex,*/}
+                {/*pageSize: this.pages.pageSize,*/}
+                {/*total: this.pages.pageCount,*/}
+              {/*}}*/}
+              {/*onChange={pagination => {*/}
+                {/*this.pages.pageIndex = pagination.current;*/}
+                {/*this.getData();*/}
+              {/*}}*/}
+            {/*/>*/}
+          {/*</Card>*/}
+        {/*</div>*/}
       </GridContent>
     );
   }

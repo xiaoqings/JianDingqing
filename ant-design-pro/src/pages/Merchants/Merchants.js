@@ -12,8 +12,9 @@ const Option = Select.Option;
 
 const dateFormat = 'YYYY-MM-DD';
 
-@connect(({ list, loading }) => ({
+@connect(({ list, user, loading }) => ({
   list,
+  currentUser: user.currentUser,
   loading: loading.effects['list/fetchBusinessList'],
   isSubmit: loading.effects['user/saveSetting'],
 }))
@@ -104,18 +105,20 @@ export default class Merchants extends PureComponent {
           }
           return (
             <Fragment>
-              <a onClick={() => this.setState({visible:true, type : 2,infoCode :record.businessCode })}>核销记录</a>
-              <Divider type="vertical" />
-              <a onClick={() => this.setState({
-                showTimeModal:true,
-                infoCode :record.businessCode,
-                info:record,
-                defaultType : type,
-                startDate : start ,
-                endDate : end,
-              })} >设置核销时间</a>
-              {text && <Divider type="vertical" />}
-              {text && <a onClick={() => this.confirmHeXiao(record)} >{'确认核销'}</a>}
+              <div><a onClick={() => this.setState({visible:true, type : 2,infoCode :record.businessCode })}>核销记录</a></div>
+              <div>
+                <a onClick={() => this.setState({
+                  showTimeModal:true,
+                  infoCode :record.businessCode,
+                  info:record,
+                  defaultType : type,
+                  startDate : start ,
+                  endDate : end,
+                })} >核销设置</a>
+              </div>
+              <div>
+                {text ? <a onClick={() => this.confirmHeXiao(record)} >{'确认核销'}</a> : null}
+              </div>
             </Fragment>
           );
         },
@@ -156,10 +159,10 @@ export default class Merchants extends PureComponent {
   // todo 加载获得数据
   getData = () => {
     const { dispatch } = this.props;
+    console.log(this.pages);
     const params = {
-      pages: {
-        ...this.pages,
-      },
+      pageIndex: this.pages.pageIndex,
+      pageSize: this.pages.pageSize,
       queryParam: this.state.searchValue || '',
     };
     dispatch({
@@ -181,9 +184,13 @@ export default class Merchants extends PureComponent {
         dispatch({
           type: 'user/confirmHeXiao',
           payload: {
-            businessCode : info.userid,
+            businessCode : info.businessCode,
           },
         });
+
+        setTimeout(() => {
+          this.getData()
+        },3000);
       }
     });
   };
@@ -249,6 +256,7 @@ export default class Merchants extends PureComponent {
         <Table
           loading={loading}
           dataSource={list}
+          scroll={{x:true}}
           columns={this.columns}
           pagination={{
             current: this.pages.pageIndex,

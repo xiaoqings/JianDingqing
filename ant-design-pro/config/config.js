@@ -4,7 +4,6 @@ import pageRoutes from './router.config';
 import webpackPlugin from './plugin.config';
 import defaultSettings from '../src/defaultSettings';
 import slash from 'slash2';
-
 const { pwa, primaryColor } = defaultSettings;
 const { NODE_ENV, APP_TYPE, TEST } = process.env;
 
@@ -62,11 +61,11 @@ export default {
   plugins,
   devServer: {
     // contentBase: __dirname + "/",
-    // port: 9000,
+    port: 8088,
     proxy: {
       '/api': { // todo 代理地址
-        // target: 'http://129.204.140.202:8080',
-        target: "http://172.20.10.4:8001",
+        // target: 'http://129.204.140.202:8080/api/',
+        target: 'http://192.168.43.208:8002',
         changeOrigin: true,
         pathRewrite: { '^/api': '' },
       },
