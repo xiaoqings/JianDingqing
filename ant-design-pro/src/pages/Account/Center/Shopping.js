@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { Table, Card, Form, Input, DatePicker, Button, Modal, Icon, InputNumber, Row, Col, message } from 'antd';
 import styles from '../../List/TableList.less';
 import moment from 'moment';
-import { getDateString } from '../../../utils/utils';
+import {getFirstAndLastMonthDay } from '../../../utils/utils';
 import Authorized from '@/utils/Authorized';
 
 const Search = Input.Search;
@@ -13,24 +13,22 @@ const dateFormat = 'YYYY-MM-DD';
 @connect(({ user,loading }) => ({
   list : user,
   currentUser: user.currentUser,
+  submitSuccess: user.submitSuccess,
+  sendSuccess: user.sendSuccess,
   loading: loading.effects['user/fetchList'],
-  isSubmit: loading.effects['user/addShopping'],
-  isHeXiao: loading.effects['user/HeXiaoShpping'],
 }))
 @Form.create()
-
 export default  class Shopping extends PureComponent {
   constructor() {
     super();
 
-    let date = new Date();
     this.state = {
-      startDate: getDateString(`${date.getFullYear()}-${date.getMonth()-1}-${date.getDate()}`),
-      endDate: getDateString(`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`),
+      startDate:getFirstAndLastMonthDay().firstdate,
+      endDate: getFirstAndLastMonthDay().lastdate,
 
       count: 0,
+      money : 0,
       mobile : '',
-      money : 0
     };
 
     this.pages = {
@@ -63,14 +61,32 @@ export default  class Shopping extends PureComponent {
     this.props = {
       ...nextProps
     };
-    const { list: { page },isSubmit } = nextProps;
+    const { list: { page,list },submitSuccess,sendSuccess } = nextProps;
     if (page) {
       this.pages.pageIndex = page.pageIndex || 1;
       this.pages.pageSize = page.pageSize || 1;
       this.pages.pageCount = page.totalCount || 1;
     }
-    if(isSubmit){
+
+    console.log('nextProps ==> ',nextProps,this.timers);
+
+    if(list){
+      this.setState({countMoney:list.unWriteOffSsc || 0})
+    }
+
+    if(submitSuccess && this.timer){
+      this.setState({
+        isSubmit:false,
+        visible:false,
+        showMobileModal:false,
+      });
       this.getData();
+      this.timer = null;
+    }
+
+    if(sendSuccess && this.timers){
+      this.setState({showMobileModal:true});
+      this.timers = null;
     }
   }
 
@@ -95,6 +111,7 @@ export default  class Shopping extends PureComponent {
       endTime: endDate,
       businessCode : currentUser.userid,
       customerPhone: searchValue || '',
+      isWriteOff : 2
     };
     dispatch({
       type: 'user/fetchList',
@@ -105,8 +122,11 @@ export default  class Shopping extends PureComponent {
   // todo 添加购物点
   handleSubmit = (e) => {
     e.preventDefault();
-    const {form,dispatch,isSubmit=false,type} = this.props;
-    if(isSubmit){return false;}
+    this.setState({isSubmit:true});
+    this.timer = true;
+    const {form,dispatch,submitSuccess=false,type} = this.props;
+    if(submitSuccess){return false;}
+
     form.validateFields((err, values) => {
       if (!err) {
         values.type = this.state.type;
@@ -119,19 +139,79 @@ export default  class Shopping extends PureComponent {
     });
   };
 
+  // todo 发送核销短信验证码
+  _sendHeXiaoSMS = () => {
+    const {countMoney = 0} = this.state;
+    if(countMoney === 0){
+      return message.warn(`您当前购物点为 0, 无法进行核销! `);
+    }
+    const { dispatch ,currentUser} = this.props;
+    Modal.confirm({
+      title: '【微睐美】购物点核销',
+      content: `您确定要核销 【${countMoney}】 购物点吗?`,
+      okText : '确认核销并发送验证码',
+      cancelText : '取消',
+      onCancel : () => { return false},
+      onOk : () => {
+        this.timers = true;
+        dispatch({
+          type: 'user/sendHeXiaoSMS',
+          payload: {
+            businessCode : currentUser.userid,
+            businessPhone : currentUser.phone,
+            hxSsc : countMoney
+          },
+        });
+      }
+    });
+  };
+
   // todo  核销购物点
   _HeXiaoShpping = () => {
-    const { dispatch ,currentUser,isHeXiao=false} = this.props;
-    if(isHeXiao){
+    const {verifyCode} = this.state;
+    if(!verifyCode || verifyCode == ''){
+      return message.warn('请输入短信验证码!');
+    }
+    const { dispatch ,currentUser,submitSuccess=false} = this.props;
+    if(submitSuccess){
       return false;
     }
-    console.log(currentUser);
+    this.setState({isSubmit:true});
+    this.timer = true;
     dispatch({
       type: 'user/HeXiaoShpping',
       payload: {
-        businessCode : currentUser.userid
-      },
+        businessCode : currentUser.userid,
+        code : verifyCode,
+      }
     });
+  };
+
+  // todo 发送短信验证码
+  onGetCaptcha = () => {
+    const { dispatch } = this.props;
+    const { mobile, money} = this.state;
+    if (!mobile) {
+      return message.error('请输入手机号!');
+    }
+    if (!money || money == 0 || money == '') {
+      return message.error('请输入兑换的购物点数!');
+    }
+
+    dispatch({
+      type: 'user/sendSMS',
+      payload: { mobile, money},
+    });
+
+    let count = 59;
+    this.setState({ count });
+    this.interval = setInterval(() => {
+      count -= 1;
+      this.setState({ count });
+      if (count === 0) {
+        clearInterval(this.interval);
+      }
+    }, 1000);
   };
 
   render() {
@@ -139,15 +219,20 @@ export default  class Shopping extends PureComponent {
       list: { list },
       loading = false,
       form,
-      isSubmit = false,
       isHeXiao = false,
     } = this.props;
+
     const { getFieldDecorator } = form;
-    const {startDate, endDate, visible = false,type = 1,mobile,money} = this.state;
+    const {
+      startDate, endDate, visible = false,type = 1,mobile,money,count,
+      isSubmit = false,
+    } = this.state;
+
     return (
       <Card bordered={false}>
         <h2 style={{textAlign:'center',fontWeight:600}} >{'购物点管理'}</h2>
         <div style={{display:'flex',flexDirection:'column',marginBottom:20,marginTop:20}} >
+
           <Authorized authority={['admin']} >
             <Button
               style={{marginTop:10,width:'100%'}}
@@ -157,6 +242,7 @@ export default  class Shopping extends PureComponent {
               {'充值购物点'}
             </Button>
           </Authorized>
+
           <Button
             style={{marginTop:10,width:'100%'}}
             type="primary" icon="swap" size={20}
@@ -164,6 +250,7 @@ export default  class Shopping extends PureComponent {
           >
             {'购物点兑换商品'}
           </Button>
+
           <div style={{textAlign:'right'}} >
             <RangePicker
               style={{marginTop:10,marginRight:10}}
@@ -184,12 +271,13 @@ export default  class Shopping extends PureComponent {
               enterButton
             />
           </div>
+
         </div>
 
         <div className={styles.tableList} >
           <Table
             loading={loading}
-            dataSource={list}
+            dataSource={list.sscList || []}
             columns={this.columns}
             pagination={{
               current: this.pages.pageIndex,
@@ -200,18 +288,26 @@ export default  class Shopping extends PureComponent {
               this.pages.pageIndex = pagination.current;
               this.getData();
             }}
+            footer={() => {
+              return(
+                <div style={{textAlign:'right',background:'#4fff1852',padding:'5px'}} >
+                  <span>{'未核销的购物点数 : '}</span>
+                  <strong style={{fontSize:'20px',paddingRight:10}} >{this.state.countMoney || 0 }</strong>
+                </div>
+              )
+            }}
           />
         </div>
 
-        <Authorized authority={['user']} >
+        {/*<Authorized authority={['user']} >*/}
           <Button
             style={{marginTop:10,width:'100%'}}
             type="primary" icon="swap" size={20}
-            onClick={this._HeXiaoShpping}
+            onClick={this._sendHeXiaoSMS}
           >
             {isHeXiao ? '正在核销处理...' : '核销购物点'}
           </Button>
-        </Authorized>
+        {/*</Authorized>*/}
 
         <Modal
           title={type === 1 ? '购物点充值' : '购物点数兑换商品'}
@@ -225,33 +321,84 @@ export default  class Shopping extends PureComponent {
           <Form onSubmit={this.handleSubmit} className="login-form">
             <Form.Item>
               {getFieldDecorator('customerPhone', {
+                initialValue : mobile,
                 rules: [{ required: true, message: '请输入手机号!' }],
               })(
                 <Input
+                  size="large"
                   prefix={<Icon type="phone" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                  placeholder="手机号"
+                  onChange={e => this.setState({ mobile: e.target.value })}
+                  placeholder={'手机号'}
                 />
               )}
             </Form.Item>
             <Form.Item>
               {getFieldDecorator('money', {
+                initialValue : money,
                 rules: [{ required: true, message: '请输入购物点数!' }],
               })(
                 <InputNumber
+                  size="large"
                   style={{width:'100%'}}
                   placeholder={type === 1 ? "充值购物点数" : '兑换购物点数'}
                   formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   parser={value => value.replace(/\$\s?|(,*)/g, '')}
                   prefix={<Icon type="money-collec" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                  onChange={e => this.setState({ money: e })}
                 />
               )}
             </Form.Item>
+            {
+              type === 1 ? null :
+                <Form.Item>
+                  <Row gutter={8}>
+                    <Col span={16}>
+                      {getFieldDecorator('captcha', {
+                        rules: [
+                          {
+                            required: true,
+                            message: '请输入验证码',
+                          },
+                        ],
+                      })(<Input size="large" placeholder={'验证码'} />)}
+                    </Col>
+                    <Col span={8}>
+                      <Button
+                        size="large"
+                        disabled={count}
+                        className={styles.getCaptcha}
+                        onClick={this.onGetCaptcha}
+                      >
+                        {count ? `${count} s` : '获取验证码'}
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form.Item>
+            }
             <Form.Item>
               <Button type="primary" htmlType="submit" style={{width:'100%'}} >
                 {isSubmit? '提交中...' : (type === 1 ? '立即充值' : '立即兑换')}
               </Button>
             </Form.Item>
           </Form>
+        </Modal>
+
+        <Modal
+          title={'请输入短信验证码'}
+          visible={this.state.showMobileModal || false}
+          maskClosable={false}
+          onCancel={() => this.setState({showMobileModal:false})}
+          footer={[
+            <Button key="back" onClick={() => this.setState({showMobileModal:false})}>{'关闭'}</Button>,
+            <Button key={'primary'} type={'primary'} onClick={this._HeXiaoShpping}>{'确认'}</Button>
+          ]}
+        >
+          <Input
+            size="large"
+            prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+            onChange={e => this.setState({ verifyCode: e.target.value })}
+            placeholder={'请输入短信验证码'}
+          />
         </Modal>
 
       </Card>

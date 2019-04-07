@@ -14,7 +14,7 @@ const SalesCard = React.lazy(() => import('./SalesCard'));
   loading: loading.effects['user/fetchList'],
 }))
 
-class Analysis extends PureComponent {
+class UserAnalysis extends PureComponent {
   constructor(){
     super();
 
@@ -64,18 +64,23 @@ class Analysis extends PureComponent {
         type: 'user/fetchList',
         payload: params,
       });
+
+      dispatch({
+        type: 'user/distributorData',
+        payload: {
+          businessCode : currentUser.userid
+        },
+      });
     });
   };
 
   render() {
-    const { list : {list}, loading } = this.props;
+    const { list : {list,dateList}, loading ,currentUser} = this.props;
+
     const salesData = [];
-    for (let i = 0; i < list.length; i ++) {
-      const {customerPhone,consumptionShoppingSpot} = list[i];
-      salesData.push({
-        x: customerPhone || '-',
-        y: consumptionShoppingSpot || 0,
-      });
+    for (let i = 0; i < dateList.length; i ++) {
+      const {day,totalShoppingSpot} = dateList[i];
+      salesData.push({ x: `${day}`, y: totalShoppingSpot || 0});
     }
 
     const columns = [
@@ -94,20 +99,22 @@ class Analysis extends PureComponent {
       },
     ];
 
+    let title = `【${currentUser ? currentUser.name : ''}】${new Date().getFullYear()}年${new Date().getMonth()}月用户购物点兑换情况`;
+
     return (
       <GridContent>
         <Suspense fallback={null}>
           <SalesCard
             salesData={salesData}
             loading={loading}
-            title={'当月购物点兑换柱状图'}
+            title={title}
           />
         </Suspense>
         <div className={styles.twoColLayout}>
           <Card
             loading={loading}
             bordered={false}
-            title={'当月购物点兑换'}
+            title={title}
             style={{ marginTop: 24 }}
           >
             <Table
@@ -133,6 +140,6 @@ class Analysis extends PureComponent {
 
 export default props => (
   <AsyncLoadBizCharts>
-    <Analysis {...props} />
+    <UserAnalysis {...props} />
   </AsyncLoadBizCharts>
 );

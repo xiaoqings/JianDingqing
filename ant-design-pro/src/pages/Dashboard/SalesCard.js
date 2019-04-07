@@ -15,7 +15,7 @@ const SalesCard = memo(
             <div className={styles.salesBar}>
               <Bar
                 height={400}
-                title={'各店铺当月购物点兑换趋势'}
+                title={''}
                 data={salesData} />
             </div>
           </TabPane>

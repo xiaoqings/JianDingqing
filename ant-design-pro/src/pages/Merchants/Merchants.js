@@ -92,7 +92,7 @@ export default class Merchants extends PureComponent {
       },
       {
         title: '操作',
-        dataIndex: 'createAt',
+        dataIndex: 'confirmHx',
         width : '200px',
         render: (text, record) => {
           let type = record.setType || 1;
@@ -114,6 +114,8 @@ export default class Merchants extends PureComponent {
                 startDate : start ,
                 endDate : end,
               })} >设置核销时间</a>
+              {text && <Divider type="vertical" />}
+              {text && <a onClick={() => this.confirmHeXiao(record)} >{'确认核销'}</a>}
             </Fragment>
           );
         },
@@ -135,6 +137,7 @@ export default class Merchants extends PureComponent {
     if(isSubmit){
       this.setState({showTimeModal : false})
     }
+
   }
 
   componentDidMount() {
@@ -162,6 +165,26 @@ export default class Merchants extends PureComponent {
     dispatch({
       type: 'list/fetchBusinessList',
       payload: params,
+    });
+  };
+
+  // todo 是否确认核销
+  confirmHeXiao = (info) => {
+    const { dispatch} = this.props;
+    Modal.confirm({
+      title: '【微睐美】确认核销',
+      content: `您确定要核销 【${info.businessName}】 购物点吗?`,
+      okText : '确认核销',
+      cancelText : '取消',
+      onCancel : () => { return false},
+      onOk : () => {
+        dispatch({
+          type: 'user/confirmHeXiao',
+          payload: {
+            businessCode : info.userid,
+          },
+        });
+      }
     });
   };
 
@@ -357,6 +380,7 @@ export default class Merchants extends PureComponent {
 @connect(({ user, loading }) => ({
   list : user,
   loading: loading.effects['user/sscByCondition'],
+  loadings: loading.effects['user/alreadyWriteoff'],
 }))
 export class WaitDoneTable extends PureComponent{
   constructor(){
@@ -366,6 +390,8 @@ export class WaitDoneTable extends PureComponent{
     this.state = {
       startDate: getDateString(),
       endDate: getDateString(`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`),
+
+      businessType : 1,
     };
 
     this.pages = {
@@ -377,23 +403,22 @@ export class WaitDoneTable extends PureComponent{
   }
 
   componentWillReceiveProps(nextProps) {
-    this.props = {
-      ...nextProps
-    };
-    const {
-      list: { page },
-    } = nextProps;
+    this.props = nextProps;
+    const { list: { page }, businessType} = nextProps;
     if (page) {
       this.pages.pageIndex = page.pageIndex || 1;
       this.pages.pageSize = page.pageSize || 1;
       this.pages.pageCount = page.totalCount || 1;
     }
+    if(businessType !== this.state.businessType){
+      this.setState({businessType});
+      this.getData();
+    }
   }
 
   componentDidMount() {
-    const {
-      list: { page },
-    } = this.props;
+    const { list: { page }, businessType} = this.props;
+    this.setState({businessType});
     if (page) {
       this.pages.pageIndex = page.pageIndex || 1;
       this.pages.pageSize = page.pageSize || 1;
@@ -406,23 +431,21 @@ export class WaitDoneTable extends PureComponent{
   // todo 顾客购物点【未核销】消费列表【总经销可看和分销商可看】
   getData = () => {
     const { dispatch,businessCode,businessType } = this.props;
-    console.log(businessCode);
     if(!businessCode){return message.error('商户信息参数错误!')}
-    const { searchValue, startDate, endDate} = this.state;
     const params = {
       businessCode : businessCode,
       pageIndex : this.pages.pageIndex,
       pageSize : this.pages.pageSize,
-      // startTime : startDate,
-      // endTime : endDate,
-      // searchValue : searchValue,
     };
 
     // 详情
     if(parseInt(businessType) === 1){
       dispatch({
         type: 'user/sscByCondition',
-        payload: params,
+        payload: {
+          ...params,
+          isWriteOff : 2
+        },
       });
     }else {
       dispatch({
@@ -436,11 +459,9 @@ export class WaitDoneTable extends PureComponent{
     const {
       list: { list },
       loading = false,
+      loadings = false,
       businessType,
     } = this.props;
-
-    const { searchValue, startDate, endDate} = this.state;
-
     let columns = [
       {
         title: '编号',
@@ -464,29 +485,9 @@ export class WaitDoneTable extends PureComponent{
         <h2 style={{textAlign:'center'}} >
           {(businessType && parseInt(businessType) === 1) ? '未核销的购物点列表': '核销记录'}
         </h2>
-        {/*<RangePicker*/}
-        {/*style={{marginTop:10,marginRight:15}}*/}
-        {/*defaultValue={[moment(startDate, dateFormat), moment(endDate, dateFormat)]}*/}
-        {/*format={dateFormat}*/}
-        {/*onChange={(dates, dateStrings) => {*/}
-        {/*this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] }, () =>*/}
-        {/*this.getData()*/}
-        {/*);*/}
-        {/*}}*/}
-        {/*/>*/}
-        {/*<Search*/}
-        {/*style={{ width: 300 ,marginTop:10}}*/}
-        {/*value={searchValue || ''}*/}
-        {/*placeholder={'搜索名称/联系人/电话号码'}*/}
-        {/*enterButton="搜索"*/}
-        {/*onSearch={() => {*/}
-        {/*this.pages.pageIndex = 1;*/}
-        {/*this.setState({ searchValue: value }, () => this.getData());*/}
-        {/*}}*/}
-        {/*/>*/}
         <Table
-          loading={loading}
-          dataSource={list}
+          loading={loading || loadings}
+          dataSource={list.sscList || []}
           columns={columns}
           pagination={{
             current: this.pages.pageIndex,

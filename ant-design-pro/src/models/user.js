@@ -12,12 +12,25 @@ export default {
 
   state: {
     list: [],
+    dateList: [],
     currentUser: {},
   },
 
   effects: {
     // todo 查询商家未核销购物点
-    *fetch({payload}, { call, put }) {
+    // *fetch({payload}, { call, put }) {
+    //   let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
+    //   if (!(response && response.status === 200)) {
+    //     return message.error(response.message || '数据查询失败!');
+    //   }
+    //   yield put({
+    //     type: 'save',
+    //     payload: response,
+    //   });
+    // },
+
+    // todo 查询商家未核销购物点
+    *fetchList({payload}, { call, put }) {
       let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
@@ -28,9 +41,33 @@ export default {
       });
     },
 
-    // todo 查询商家未核销购物点
-    *fetchList({payload}, { call, put }) {
-      let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
+    // todo 查询分销商当月数据信息
+    *distributorData({payload}, { call, put }) {
+      let response = yield request('/api/index/distributorData', { method: 'POST', body: payload });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据查询失败!');
+      }
+      yield put({
+        type: 'saveList',
+        payload: response.data || {},
+      });
+    },
+
+    // todo 查询分销商的核销记录
+    *HeXiaoList({payload}, { call, put }) {
+      let response = yield request('/api/ssc/alreadyWriteoff', { method: 'POST', body: payload });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '数据查询失败!');
+      }
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+    },
+
+    // todo 查询分销商的核销记录
+    *AddMoneyList({payload}, { call, put }) {
+      let response = yield request('/api/ssr/list', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
       }
@@ -168,24 +205,38 @@ export default {
       });
     },
 
-    // todo 充值购物点数
+    // todo 充值购物点数 和 兑换购物点数
     *addShopping({payload}, { call, put }) {
-      console.log(payload);
       const {type} = payload;
+
       if(type === 1){
-        console.log('充值购物点数',type);
+        console.log('充值购物点数 ==> ',type);
+
         let response = yield request('/api/ssr/create', { method: 'POST', body: payload });
         if (!(response && response.status === 200)) {
           return message.error(response.message || '购物点数充值失败!');
         }
         message.success(`${payload.customerPhone} 用户, 成功充值 ${payload.money} 购物点数!`);
+
       }else {
+        console.log('兑换购物点数 ==> ',payload);
+
         payload.consumptionShoppingSpot = payload.money;
+        payload.code = payload.captcha;
+
         let response = yield request('/api/ssc/create', { method: 'POST', body: payload });
+
         if (!(response && response.status === 200)) {
           return message.error(response.message || '购物点数兑换失败!');
         }
         message.success(`${payload.customerPhone} 用户, 你已成功兑换 ${payload.money} 购物点数!`);
+
+        yield put({
+          type: 'changeState',
+          payload: {
+            status : true
+          },
+        });
       }
     },
 
@@ -201,12 +252,56 @@ export default {
 
     // todo 核销购物点
     *HeXiaoShpping({payload}, { call, put }) {
-      let response = yield ('/api/detail/writeOff', { method: 'POST', body: payload });
-      console.log(response);
+      let response = yield request('/api/ssc/hxSsc', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据核销失败!');
       }
-      message.success(`提交成功!`);
+      message.success(response.message || `数据提交成功,待总经销商确认!`);
+      yield put({
+        type: 'changeState',
+        payload: {
+          status : true
+        },
+      });
+    },
+
+    // todo 兑换购物点数  发送短信验证码
+    *sendSMS({ payload }, { call, put }) {
+      payload = {
+        customerPhone: payload.mobile,
+        consumptionShoppingSpot : payload.money
+      };
+      console.log(payload);
+      let response = yield request('/api/ssc/sendSmsCode', { method: 'POST', body: payload });
+      console.log(response);
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '验证码发送失败!');
+      }
+      message.success('验证码已发送,请注意查收!');
+    },
+
+    // todo 发送核销的短信验证码
+    *sendHeXiaoSMS({ payload }, { call, put }) {
+      let response = yield request('/api/ssc/hxSmsCode', { method: 'POST', body: payload });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '验证码发送失败!');
+      }
+      message.success(`验证码已发送至您注册时的手机号码【${response.data}】,请注意查收!`);
+      yield put({
+        type: 'sendSMSState',
+        payload: {
+          status : true
+        },
+      });
+    },
+
+    // todo 总经销商对商家核销信息进行审核
+    *confirmHeXiao({ payload }, { call, put }) {
+      let response = yield request('/api/detail/writeOff', { method: 'POST', body: payload });
+      if (!(response && response.status === 200)) {
+        return message.error(response.message || '发送失败!');
+      }
+      message.success(`审核成功!!`);
     },
 
   },
@@ -217,6 +312,25 @@ export default {
         ...state,
         list: payload.data || [],
         page: payload.page || null
+      };
+    },
+    saveList(state, {payload}) {
+      return {
+        ...state,
+        dateList: payload.didList || [],
+      };
+    },
+    changeState(state, {payload}) {
+      console.log('payload ==> ',payload);
+      return {
+        ...state,
+        submitSuccess: payload.status,
+      };
+    },
+    sendSMSState(state, {payload}) {
+      return {
+        ...state,
+        sendSuccess: payload.status,
       };
     },
     changeLoginStatus(state, { payload }) {

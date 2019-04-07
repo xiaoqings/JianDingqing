@@ -18,7 +18,7 @@ export default [
     Routes: ['src/pages/Authorized'],
     authority: ['admin', 'user'],
     routes: [
-      { path: '/', redirect: '/dashboard' },
+      { path: '/', redirect: '/dashboards'},
       {
         path: '/dashboard',
         name: '系统首页',
@@ -45,6 +45,20 @@ export default [
         name: '购物点管理',
         icon: 'bars',
         component: './Account/Center/Shopping',
+      },
+      {
+        path: '/account/hexiao',
+        name: '核销记录',
+        icon: 'align-left',
+        component: './Account/Center/HeXiao',
+        authority: ['user'],
+      },
+      {
+        path: '/account/addlist',
+        name: '充值记录',
+        icon: 'align-left',
+        component: './Account/Center/AddList',
+        authority: ['admin'],
       },
       {
         path: '/account/settings',
