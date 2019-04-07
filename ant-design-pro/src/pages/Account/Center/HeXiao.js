@@ -23,10 +23,6 @@ export default  class HeXiao extends PureComponent {
     this.state = {
       startDate: getFirstAndLastMonthDay().firstdate,
       endDate: getFirstAndLastMonthDay().lastdate,
-
-      count: 0,
-      mobile : '',
-      money : 0
     };
 
     this.pages = {
@@ -56,34 +52,29 @@ export default  class HeXiao extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.props = {
-      ...nextProps
-    };
-    const { list: { page },isSubmit } = nextProps;
+    this.props = nextProps;
+    const { list: { page } } = nextProps;
+    console.log('psge ==> ',page);
     if (page) {
-      this.pages.pageIndex = page.pageIndex || 1;
-      this.pages.pageSize = page.pageSize || 1;
-      this.pages.pageCount = page.totalCount || 1;
-    }
-    if(isSubmit){
-      this.getData();
+      this.pages = {
+        ...page
+      }
+    }else {
+      this.pages = {
+        pageIndex: 1,
+        pageSize: 5,
+        pageCount: 0,
+      };
     }
   }
 
   componentDidMount() {
-    const { list: { page }} = this.props;
-    if (page) {
-      this.pages.pageIndex = page.pageIndex || 1;
-      this.pages.pageSize = page.pageSize || 1;
-      this.pages.pageCount = page.totalCount || 1;
-    }
     this.getData();
   }
 
   getData = () => {
     const { dispatch,currentUser } = this.props;
     const { searchValue,startDate, endDate } = this.state;
-    console.log('currentUser ==> ',currentUser);
     const params = {
       pageIndex: this.pages.pageIndex,
       pageSize: this.pages.pageSize,
@@ -135,7 +126,7 @@ export default  class HeXiao extends PureComponent {
         <div className={styles.tableList} >
           <Table
             loading={loading}
-            dataSource={list}
+            dataSource={list.sscList || []}
             columns={this.columns}
             pagination={{
               current: this.pages.pageIndex,

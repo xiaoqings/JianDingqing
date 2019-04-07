@@ -23,10 +23,6 @@ export default  class AddList extends PureComponent {
     this.state = {
       startDate: getFirstAndLastMonthDay().firstdate,
       endDate: getFirstAndLastMonthDay().lastdate,
-
-      count: 0,
-      mobile : '',
-      money : 0
     };
 
     this.pages = {
@@ -56,24 +52,15 @@ export default  class AddList extends PureComponent {
     this.props = {
       ...nextProps
     };
-    const { list: { page },isSubmit } = nextProps;
+    const { list: { page } } = nextProps;
     if (page) {
       this.pages.pageIndex = page.pageIndex || 1;
       this.pages.pageSize = page.pageSize || 1;
       this.pages.pageCount = page.totalCount || 1;
-    }
-    if(isSubmit){
-      this.getData();
     }
   }
 
   componentDidMount() {
-    const { list: { page }} = this.props;
-    if (page) {
-      this.pages.pageIndex = page.pageIndex || 1;
-      this.pages.pageSize = page.pageSize || 1;
-      this.pages.pageCount = page.totalCount || 1;
-    }
     this.getData();
   }
 

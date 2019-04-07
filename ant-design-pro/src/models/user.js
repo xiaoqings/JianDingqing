@@ -11,7 +11,7 @@ export default {
   namespace: 'user',
 
   state: {
-    list: [],
+    list: {},
     dateList: [],
     currentUser: {},
   },
