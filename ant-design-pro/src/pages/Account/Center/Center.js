@@ -72,7 +72,7 @@ export default class Center extends PureComponent {
         key: 'articles',
         tab: (
           <span>
-            顾客购物点消费列表 <span style={{ fontSize: 14 }}>(8)</span>
+            顾客消费点消费列表 <span style={{ fontSize: 14 }}>(8)</span>
           </span>
         ),
       }, {
@@ -80,7 +80,7 @@ export default class Center extends PureComponent {
         tab: (
           <span>
             {' '}
-            购物点消费记录 <span style={{ fontSize: 14 }}>(8)</span>
+            消费点消费记录 <span style={{ fontSize: 14 }}>(8)</span>
           </span>
         ),
       }, {

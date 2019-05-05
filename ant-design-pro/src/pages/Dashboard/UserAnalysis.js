@@ -92,13 +92,13 @@ class UserAnalysis extends PureComponent {
         dataIndex: 'customerPhone',
         key: 'customerPhone',
       }, {
-        title: '消费购物点',
+        title: '消费消费点',
         dataIndex: 'consumptionShoppingSpot',
         key: 'consumptionShoppingSpot',
       },
     ];
 
-    let title = `【${currentUser ? currentUser.name : ''}】${new Date().getFullYear()}年${new Date().getMonth()}月用户购物点兑换情况`;
+    let title = `【${currentUser ? currentUser.name : ''}】${new Date().getFullYear()}年${new Date().getMonth()}月用户消费点兑换情况`;
 
     return (
       <GridContent>

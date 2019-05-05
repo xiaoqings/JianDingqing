@@ -45,10 +45,10 @@ export default  class Shopping extends PureComponent {
         title: '顾客电话',
         dataIndex: 'customerPhone',
       }, {
-        title: '消费购物点',
+        title: '消费消费点',
         dataIndex: 'consumptionShoppingSpot',
       }, {
-        title: '剩余购物点',
+        title: '剩余消费点',
         dataIndex: 'surplusConsumption',
       }, {
         title: '消费时间',
@@ -119,7 +119,7 @@ export default  class Shopping extends PureComponent {
     });
   };
 
-  // todo 添加购物点
+  // todo 添加消费点
   handleSubmit = (e) => {
     e.preventDefault();
     this.setState({isSubmit:true});
@@ -143,12 +143,12 @@ export default  class Shopping extends PureComponent {
   _sendHeXiaoSMS = () => {
     const {countMoney = 0} = this.state;
     if(countMoney === 0){
-      return message.warn(`您当前购物点为 0, 无法进行核销! `);
+      return message.warn(`您当前消费点为 0, 无法进行核销! `);
     }
     const { dispatch ,currentUser} = this.props;
     Modal.confirm({
-      title: '【微睐美】购物点核销',
-      content: `您确定要核销 【${countMoney}】 购物点吗?`,
+      title: '【微睐美】消费点核销',
+      content: `您确定要核销 【${countMoney}】 消费点吗?`,
       okText : '确认核销并发送验证码',
       cancelText : '取消',
       onCancel : () => { return false},
@@ -166,7 +166,7 @@ export default  class Shopping extends PureComponent {
     });
   };
 
-  // todo  核销购物点
+  // todo  核销消费点
   _HeXiaoShpping = () => {
     const {verifyCode} = this.state;
     if(!verifyCode || verifyCode == ''){
@@ -195,7 +195,7 @@ export default  class Shopping extends PureComponent {
       return message.error('请输入手机号!');
     }
     if (!money || money == 0 || money == '') {
-      return message.error('请输入兑换的购物点数!');
+      return message.error('请输入兑换的消费点数!');
     }
 
     dispatch({
@@ -230,7 +230,7 @@ export default  class Shopping extends PureComponent {
 
     return (
       <Card bordered={false}>
-        <h2 style={{textAlign:'center',fontWeight:600}} >{'购物点管理'}</h2>
+        <h2 style={{textAlign:'center',fontWeight:600}} >{'消费点管理'}</h2>
         <div style={{display:'flex',flexDirection:'column',marginBottom:20,marginTop:20}} >
 
           <Authorized authority={['admin']} >
@@ -239,7 +239,7 @@ export default  class Shopping extends PureComponent {
               type="primary" icon="pay-circle" size={20}
               onClick={() => this.setState({visible:true,type : 1})}
             >
-              {'充值购物点'}
+              {'充值消费点'}
             </Button>
           </Authorized>
 
@@ -248,7 +248,7 @@ export default  class Shopping extends PureComponent {
             type="primary" icon="swap" size={20}
             onClick={() => this.setState({visible:true,type : 2})}
           >
-            {'购物点兑换商品'}
+            {'消费点兑换商品'}
           </Button>
 
           <div style={{textAlign:'right'}} >
@@ -291,7 +291,7 @@ export default  class Shopping extends PureComponent {
             footer={() => {
               return(
                 <div style={{textAlign:'right',background:'#4fff1852',padding:'5px'}} >
-                  <span>{'未核销的购物点数 : '}</span>
+                  <span>{'未核销的消费点数 : '}</span>
                   <strong style={{fontSize:'20px',paddingRight:10}} >{this.state.countMoney || 0 }</strong>
                 </div>
               )
@@ -305,12 +305,12 @@ export default  class Shopping extends PureComponent {
             type="primary" icon="swap" size={20}
             onClick={this._sendHeXiaoSMS}
           >
-            {isHeXiao ? '正在核销处理...' : '核销购物点'}
+            {isHeXiao ? '正在核销处理...' : '核销消费点'}
           </Button>
         </Authorized>
 
         <Modal
-          title={type === 1 ? '购物点充值' : '购物点数兑换商品'}
+          title={type === 1 ? '消费点充值' : '消费点数兑换商品'}
           visible={visible}
           maskClosable={false}
           onCancel={() => this.setState({visible:false})}
@@ -335,12 +335,12 @@ export default  class Shopping extends PureComponent {
             <Form.Item>
               {getFieldDecorator('money', {
                 initialValue : money,
-                rules: [{ required: true, message: '请输入购物点数!' }],
+                rules: [{ required: true, message: '请输入消费点数!' }],
               })(
                 <InputNumber
                   size="large"
                   style={{width:'100%'}}
-                  placeholder={type === 1 ? "充值购物点数" : '兑换购物点数'}
+                  placeholder={type === 1 ? "充值消费点数" : '兑换消费点数'}
                   formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   parser={value => value.replace(/\$\s?|(,*)/g, '')}
                   prefix={<Icon type="money-collec" style={{ color: 'rgba(0,0,0,.25)' }} />}

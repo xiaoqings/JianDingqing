@@ -57,7 +57,7 @@ export default class Merchants extends PureComponent {
         dataIndex: 'businessAddress',
       },
       {
-        title: '未核销的购物点数',
+        title: '未核销的消费点数',
         dataIndex: 'totalConsumptionShoppingSpot',
         width : '100px',
         render: (text, record) => {
@@ -176,7 +176,7 @@ export default class Merchants extends PureComponent {
     const { dispatch} = this.props;
     Modal.confirm({
       title: '【微睐美】确认核销',
-      content: `您确定要核销 【${info.businessName}】 购物点吗?`,
+      content: `您确定要核销 【${info.businessName}】 消费点吗?`,
       okText : '确认核销',
       cancelText : '取消',
       onCancel : () => { return false},
@@ -271,7 +271,7 @@ export default class Merchants extends PureComponent {
 
         <Modal
           width={'80%'}
-          title={type === 1 ? '未核销的购物点列表' : '核销记录'}
+          title={type === 1 ? '未核销的消费点列表' : '核销记录'}
           visible={this.state.visible || false}
           maskClosable={false}
           onCancel={() => this.setState({visible:false})}
@@ -436,7 +436,7 @@ export class WaitDoneTable extends PureComponent{
     this.getData();
   }
 
-  // todo 顾客购物点【未核销】消费列表【总经销可看和分销商可看】
+  // todo 顾客消费点【未核销】消费列表【总经销可看和分销商可看】
   getData = () => {
     const { dispatch,businessCode,businessType } = this.props;
     if(!businessCode){return message.error('商户信息参数错误!')}
@@ -478,10 +478,10 @@ export class WaitDoneTable extends PureComponent{
         title: '客户电话',
         dataIndex: 'customerPhone',
       },{
-        title: '兑换购物点数',
+        title: '兑换消费点数',
         dataIndex: 'consumptionShoppingSpot',
       },{
-        title: '剩余购物点数',
+        title: '剩余消费点数',
         dataIndex: 'surplusConsumption',
       },{
         title: '兑换时间',
@@ -491,7 +491,7 @@ export class WaitDoneTable extends PureComponent{
     return(
       <div>
         <h2 style={{textAlign:'center'}} >
-          {(businessType && parseInt(businessType) === 1) ? '未核销的购物点列表': '核销记录'}
+          {(businessType && parseInt(businessType) === 1) ? '未核销的消费点列表': '核销记录'}
         </h2>
         <Table
           loading={loading || loadings}

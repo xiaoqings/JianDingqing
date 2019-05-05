@@ -39,10 +39,10 @@ export default  class HeXiao extends PureComponent {
         title: '顾客电话',
         dataIndex: 'customerPhone',
       }, {
-        title: '消费购物点',
+        title: '消费消费点',
         dataIndex: 'consumptionShoppingSpot',
       }, {
-        title: '剩余购物点',
+        title: '剩余消费点',
         dataIndex: 'surplusConsumption',
       }, {
         title: '消费时间',

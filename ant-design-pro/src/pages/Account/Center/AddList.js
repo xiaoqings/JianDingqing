@@ -39,7 +39,7 @@ export default  class AddList extends PureComponent {
         title: '顾客电话',
         dataIndex: 'customerPhone',
       }, {
-        title: '充值购物点',
+        title: '充值消费点',
         dataIndex: 'shoppingSpot',
       }, {
         title: '充值时间',

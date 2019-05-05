@@ -15,7 +15,7 @@ const columns = [
     key: 'keyword',
     render: text => <a href="/">{text}</a>,
   }, {
-    title: '兑换购物点数',
+    title: '兑换消费点数',
     dataIndex: 'count',
     key: 'count',
     className: styles.alignRight,
@@ -26,7 +26,7 @@ const TopSearch = memo(({ loading, searchData }) => (
   <Card
     loading={loading}
     bordered={false}
-    title={'门店当月购物点兑换'}
+    title={'门店当月消费点兑换'}
     style={{ marginTop: 24 }}
   >
     <Table

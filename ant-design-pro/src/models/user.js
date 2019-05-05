@@ -17,7 +17,7 @@ export default {
   },
 
   effects: {
-    // todo 查询商家未核销购物点
+    // todo 查询商家未核销消费点
     // *fetch({payload}, { call, put }) {
     //   let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
     //   if (!(response && response.status === 200)) {
@@ -29,7 +29,7 @@ export default {
     //   });
     // },
 
-    // todo 查询商家未核销购物点
+    // todo 查询商家未核销消费点
     *fetchList({payload}, { call, put }) {
       let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
@@ -103,7 +103,7 @@ export default {
       });
     },
 
-    // todo 未核销的购物点数
+    // todo 未核销的消费点数
     *sscByCondition({payload}, { call, put }) {
       let response = yield request('/api/ssc/sscByCondition',{ method: 'POST', body: payload });
       console.log(response);
@@ -205,21 +205,21 @@ export default {
       });
     },
 
-    // todo 充值购物点数 和 兑换购物点数
+    // todo 充值消费点数 和 兑换消费点数
     *addShopping({payload}, { call, put }) {
       const {type} = payload;
 
       if(type === 1){
-        console.log('充值购物点数 ==> ',type);
+        console.log('充值消费点数 ==> ',type);
 
         let response = yield request('/api/ssr/create', { method: 'POST', body: payload });
         if (!(response && response.status === 200)) {
-          return message.error(response.message || '购物点数充值失败!');
+          return message.error(response.message || '消费点数充值失败!');
         }
-        message.success(`${payload.customerPhone} 用户, 成功充值 ${payload.money} 购物点数!`);
+        message.success(`${payload.customerPhone} 用户, 成功充值 ${payload.money} 消费点数!`);
 
       }else {
-        console.log('兑换购物点数 ==> ',payload);
+        console.log('兑换消费点数 ==> ',payload);
 
         payload.consumptionShoppingSpot = payload.money;
         payload.code = payload.captcha;
@@ -227,9 +227,9 @@ export default {
         let response = yield request('/api/ssc/create', { method: 'POST', body: payload });
 
         if (!(response && response.status === 200)) {
-          return message.error(response.message || '购物点数兑换失败!');
+          return message.error(response.message || '消费点数兑换失败!');
         }
-        message.success(`${payload.customerPhone} 用户, 你已成功兑换 ${payload.money} 购物点数!`);
+        message.success(`${payload.customerPhone} 用户, 你已成功兑换 ${payload.money} 消费点数!`);
 
         yield put({
           type: 'changeState',
@@ -250,7 +250,7 @@ export default {
       message.success(`提交成功!`);
     },
 
-    // todo 核销购物点
+    // todo 核销消费点
     *HeXiaoShpping({payload}, { call, put }) {
       let response = yield request('/api/ssc/hxSsc', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
@@ -265,7 +265,7 @@ export default {
       });
     },
 
-    // todo 兑换购物点数  发送短信验证码
+    // todo 兑换消费点数  发送短信验证码
     *sendSMS({ payload }, { call, put }) {
       payload = {
         customerPhone: payload.mobile,

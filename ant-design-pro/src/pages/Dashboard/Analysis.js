@@ -98,7 +98,7 @@ class Analysis extends PureComponent {
         key: 'keyword',
         render: text => <a href="/">{text}</a>,
       }, {
-        title: '兑换购物点数',
+        title: '兑换消费点数',
         dataIndex: 'count',
         key: 'count',
         className: styles.alignRight,
@@ -111,14 +111,14 @@ class Analysis extends PureComponent {
           <SalesCard
             salesData={salesData}
             loading={loading}
-            title={'门店当月购物点兑换柱状图'}
+            title={'门店当月消费点兑换柱状图'}
           />
         </Suspense>
         <div className={styles.twoColLayout}>
           <Card
             loading={loading}
             bordered={false}
-            title={'门店当月购物点兑换'}
+            title={'门店当月消费点兑换'}
             style={{ marginTop: 24 }}
           >
             <Table

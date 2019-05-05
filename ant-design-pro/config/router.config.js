@@ -42,7 +42,7 @@ export default [
       },
       {
         path: '/account/shopping',
-        name: '购物点管理',
+        name: '消费点管理',
         icon: 'bars',
         component: './Account/Center/Shopping',
       },
