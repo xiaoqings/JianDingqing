@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import fetch from 'dva/fetch';
 import { notification } from 'antd';
 import router from 'umi/router';
@@ -160,3 +161,5 @@ export default function request(url, option) {
       }
     });
 }
+
+export const requestFetch = (url, option) => request(`/api${url}`,option);

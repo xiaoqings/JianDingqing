@@ -4,7 +4,7 @@ import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
-import request from '../utils/request';
+import {requestFetch} from '../utils/request';
 import { message } from 'antd';
 
 export default {
@@ -16,7 +16,7 @@ export default {
 
   effects: {
     *login({ payload }, { call, put }) {
-      let response = yield request('/api/lr/login', { method: 'POST', body: payload });
+      let response = yield requestFetch('/lr/login', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message);
       }
@@ -64,7 +64,7 @@ export default {
     },
 
     *logout(_, { put }) {
-      let response = yield request('/api/lr/loginOut');
+      let response = yield requestFetch('/lr/loginOut');
 
       yield put({
         type: 'changeLoginStatus',
@@ -87,7 +87,7 @@ export default {
 
     // todo 修改密码
     *updatePassword({payload}, { put }) {
-      let response = yield request('/api/lr/up', { method: 'POST', body: payload });
+      let response = yield requestFetch('/lr/up', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message);
       }
@@ -113,7 +113,7 @@ export default {
     *getCaptcha({ payload }, { call }) {
       payload = { businessPhone: payload.mobile };
       console.log(payload);
-      let response = yield request('/api/lr/forgetPassSendSms', { method: 'POST', body: payload });
+      let response = yield requestFetch('/lr/forgetPassSendSms', { method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '验证码发送失败!');
@@ -131,7 +131,7 @@ export default {
         businessPassword : payload.password,
         confirmPassword : payload.confirmPassword,
       };
-      let response = yield request('/api/lr/forgetPassword', { method: 'POST', body: params });
+      let response = yield requestFetch('/lr/forgetPassword', { method: 'POST', body: params });
       if (!(response && response.status === 200)) {
         return message.error(response.message);
       }

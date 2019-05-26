@@ -64,8 +64,7 @@ export default {
     port: 8088,
     proxy: {
       '/api': { // todo 代理地址
-        // target: 'http://129.204.140.202:8080/api/',
-        target: 'http://192.168.43.208:8002',
+        target: `http://www.wlmshop.cn:8888`,
         changeOrigin: true,
         pathRewrite: { '^/api': '' },
       },

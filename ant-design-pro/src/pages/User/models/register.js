@@ -1,7 +1,7 @@
 import { fakeRegister } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { reloadAuthorized } from '@/utils/Authorized';
-import request from '../../../utils/request';
+import {requestFetch} from '../../../utils/request';
 import { message } from 'antd';
 import * as routerRedux from 'react-router-redux';
 
@@ -22,7 +22,7 @@ export default {
         businessPhone: payload.mobile,
         code: payload.captcha,
       };
-      const response = yield request('/api/lr/register', { method: 'POST', body: payload });
+      const response = yield requestFetch('/lr/register', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '注册失败!');
       }
@@ -35,7 +35,7 @@ export default {
     *send({ payload }, { call, put }) {
       payload = { businessPhone: payload.mobile };
       console.log(payload);
-      let response = yield request('/api/lr/sendSms', { method: 'POST', body: payload });
+      let response = yield requestFetch('/lr/sendSms', { method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '验证码发送失败!');

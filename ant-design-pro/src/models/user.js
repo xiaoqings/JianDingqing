@@ -1,6 +1,6 @@
 import { queryCurrent } from '@/services/user';
 import * as routerRedux from 'react-router-redux';
-import request from '../utils/request';
+import {requestFetch} from '../utils/request';
 import { message } from 'antd';
 import { setAuthority } from '../utils/authority';
 import { stringify } from 'qs';
@@ -19,7 +19,7 @@ export default {
   effects: {
     // todo 查询商家未核销消费点
     // *fetch({payload}, { call, put }) {
-    //   let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
+    //   let response = yield request('/ssc/list', { method: 'POST', body: payload });
     //   if (!(response && response.status === 200)) {
     //     return message.error(response.message || '数据查询失败!');
     //   }
@@ -31,7 +31,7 @@ export default {
 
     // todo 查询商家未核销消费点
     *fetchList({payload}, { call, put }) {
-      let response = yield request('/api/ssc/list', { method: 'POST', body: payload });
+      let response = yield requestFetch('/ssc/list', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
       }
@@ -43,7 +43,7 @@ export default {
 
     // todo 查询分销商当月数据信息
     *distributorData({payload}, { call, put }) {
-      let response = yield request('/api/index/distributorData', { method: 'POST', body: payload });
+      let response = yield requestFetch('/index/distributorData', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
       }
@@ -55,7 +55,7 @@ export default {
 
     // todo 查询分销商的核销记录
     *HeXiaoList({payload}, { call, put }) {
-      let response = yield request('/api/ssc/alreadyWriteoff', { method: 'POST', body: payload });
+      let response = yield requestFetch('/ssc/alreadyWriteoff', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
       }
@@ -67,7 +67,7 @@ export default {
 
     // todo 查询分销商的核销记录
     *AddMoneyList({payload}, { call, put }) {
-      let response = yield request('/api/ssr/list', { method: 'POST', body: payload });
+      let response = yield requestFetch('/ssr/list', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
       }
@@ -79,7 +79,7 @@ export default {
 
     // todo 查询首页信息
     *fetchHome({payload}, { call, put }) {
-      let response = yield request('/api/index/data',{ method: 'POST', body: payload });
+      let response = yield requestFetch('/index/data',{ method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
@@ -92,7 +92,7 @@ export default {
 
     // todo 核销记录
     *alreadyWriteoff({payload}, { call, put }) {
-      let response = yield request('/api/ssc/alreadyWriteoff',{ method: 'POST', body: payload });
+      let response = yield requestFetch('/ssc/alreadyWriteoff',{ method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
@@ -105,7 +105,7 @@ export default {
 
     // todo 未核销的消费点数
     *sscByCondition({payload}, { call, put }) {
-      let response = yield request('/api/ssc/sscByCondition',{ method: 'POST', body: payload });
+      let response = yield requestFetch('/ssc/sscByCondition',{ method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据查询失败!');
@@ -144,7 +144,7 @@ export default {
           type: 'saveCurrentUser',
           payload: res,
         });
-        let response = yield request(`/api/detail/bycode/${res.userid}`);
+        let response = yield requestFetch(`/detail/bycode/${res.userid}`);
         if (response && response.status === 200) {
           const { businessAddress, businessContact, businessName, businessPhone, headerPicPath} = response.data;
           res.phone = businessPhone || res.phone;
@@ -160,7 +160,7 @@ export default {
     // todo 修改用户头像
     *updateAvatar({payload}, { call, put }) {
       console.log('lr/upload ==> ',{...payload});
-      let response = yield request('/api/lr/upload', { method: 'POST', body: payload});
+      let response = yield requestFetch('/lr/upload', { method: 'POST', body: payload});
       console.log(response);
 
       if (!(response && response.status === 200)) {
@@ -188,7 +188,7 @@ export default {
         businessName : name,
         businessPhone : phone
       };
-      let response = yield request('/api/detail/updateDetail', { method: 'POST', body: params });
+      let response = yield requestFetch('/detail/updateDetail', { method: 'POST', body: params });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '信息修改失败!');
       }
@@ -212,7 +212,7 @@ export default {
       if(type === 1){
         console.log('充值消费点数 ==> ',type);
 
-        let response = yield request('/api/ssr/create', { method: 'POST', body: payload });
+        let response = yield requestFetch('/ssr/create', { method: 'POST', body: payload });
         if (!(response && response.status === 200)) {
           return message.error(response.message || '消费点数充值失败!');
         }
@@ -224,7 +224,7 @@ export default {
         payload.consumptionShoppingSpot = payload.money;
         payload.code = payload.captcha;
 
-        let response = yield request('/api/ssc/create', { method: 'POST', body: payload });
+        let response = yield requestFetch('/ssc/create', { method: 'POST', body: payload });
 
         if (!(response && response.status === 200)) {
           return message.error(response.message || '消费点数兑换失败!');
@@ -242,7 +242,7 @@ export default {
 
     // todo 保存设置核销时间
     *saveSetting({payload}, { call, put }) {
-      let response = yield request('/api/detail/setWOTime', { method: 'POST', body: payload });
+      let response = yield requestFetch('/detail/setWOTime', { method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据提交失败!');
@@ -252,7 +252,7 @@ export default {
 
     // todo 核销消费点
     *HeXiaoShpping({payload}, { call, put }) {
-      let response = yield request('/api/ssc/hxSsc', { method: 'POST', body: payload });
+      let response = yield requestFetch('/ssc/hxSsc', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据核销失败!');
       }
@@ -272,7 +272,7 @@ export default {
         consumptionShoppingSpot : payload.money
       };
       console.log(payload);
-      let response = yield request('/api/ssc/sendSmsCode', { method: 'POST', body: payload });
+      let response = yield requestFetch('/ssc/sendSmsCode', { method: 'POST', body: payload });
       console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '验证码发送失败!');
@@ -282,7 +282,7 @@ export default {
 
     // todo 发送核销的短信验证码
     *sendHeXiaoSMS({ payload }, { call, put }) {
-      let response = yield request('/api/ssc/hxSmsCode', { method: 'POST', body: payload });
+      let response = yield requestFetch('/ssc/hxSmsCode', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '验证码发送失败!');
       }
@@ -297,7 +297,7 @@ export default {
 
     // todo 总经销商对商家核销信息进行审核
     *confirmHeXiao({ payload }, { call, put }) {
-      let response = yield request('/api/detail/writeOff', { method: 'POST', body: payload });
+      let response = yield requestFetch('/detail/writeOff', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message || '发送失败!');
       }

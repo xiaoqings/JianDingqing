@@ -8,6 +8,7 @@ export default [
       { path: '/user/login', name: 'login', component: './User/Login' },
       { path: '/user/register', name: 'register', component: './User/Register' },
       { path: '/user/reset-password', name: 'reset.password', component: './User/ResetPassword' },
+      { path: '/user/query', name: 'query', component: './User/QueryList' },
     ],
   },
 

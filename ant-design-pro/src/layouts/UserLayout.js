@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
 import Link from 'umi/link';
-import { Icon } from 'antd';
-import GlobalFooter from '../components/GlobalFooter';
+import { Divider, Icon } from 'antd';
 import DocumentTitle from 'react-document-title';
+import GlobalFooter from '../components/GlobalFooter';
 import styles from './UserLayout.less';
 import logo from '../assets/logo.svg';
 import getPageTitle from '../utils/getPageTitle';
@@ -11,6 +11,12 @@ import getPageTitle from '../utils/getPageTitle';
 const copyright = (
   <Fragment>
     Copyright <Icon type="copyright" /> 微睐美商城所有
+    {/*<span className="query_list">*/}
+      {/*<Divider type="vertical" />*/}
+      {/*<Link to="/user/query">*/}
+        {/*{'自助查询'}*/}
+      {/*</Link>*/}
+    {/*</span>*/}
   </Fragment>
 );
 
@@ -34,9 +40,9 @@ class UserLayout extends Component {
     } = this.props;
     return (
       <DocumentTitle title={getPageTitle(pathname, breadcrumbNameMap)}>
-        <div className={styles.container}>
-          <div className={styles.content}>
-            <div className={styles.top}>
+        <div className={`${styles.container} query_padding`}>
+          <div className={`${styles.content} query_padding`}>
+            <div className={`${styles.top} query_list`}>
               <div className={styles.header}>
                 <Link to="/">
                   <img alt="logo" className={styles.logo} src={logo} />
