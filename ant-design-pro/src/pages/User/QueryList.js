@@ -32,7 +32,6 @@ class QueryList extends Component {
   }
   componentDidMount() {
     this.setStyle();
-    this.getData();
   }
 
   componentWillUnmount(){
@@ -120,11 +119,7 @@ class QueryList extends Component {
           <RangePicker
             defaultValue={[moment(startDate, dateFormat), moment(endDate, dateFormat)]}
             format={dateFormat}
-            onChange={(dates, dateStrings) => {
-              this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] }, () =>
-                this.getData()
-              );
-            }}
+            onChange={(dates, dateStrings) => this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] })}
           />
           <Search
             style={{ width: 300 , marginBottom:20,marginLeft:10}}
