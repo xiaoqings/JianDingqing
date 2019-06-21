@@ -26,7 +26,6 @@ export default class Center extends PureComponent {
   }
 
   componentDidMount() {
-    console.log('currentUser ==> ',this.props.currentUser);
     this.getData();
   }
 

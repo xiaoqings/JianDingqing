@@ -60,7 +60,7 @@ class HeaderView extends Component {
       router.push('/account/settings/center');
       return;
     }
-    if (key === 'logout') {
+    if (key ==='logout') {
       dispatch({
         type: 'login/logout',
       });

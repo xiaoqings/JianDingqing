@@ -64,11 +64,16 @@ const cachedSave = (response, hashcode) => {
  * @param  {object} [option] The options we want to pass to "fetch"
  * @return {object}           An object containing either "data" or "err"
  */
-export default function request(url, option) {
+export default function request(url, option = {}) {
   const options = {
     expirys: isAntdPro(),
     ...option,
   };
+
+  let res = JSON.parse(window.localStorage.getItem('currUser'));
+  if(res){
+    option.body.businessCode = res.userid;
+  }
   /**
    * Produce fingerprints based on url and parameters
    * Maybe url has the same parameters
@@ -139,8 +144,7 @@ export default function request(url, option) {
     })
     .catch(e => {
       const status = e.name;
-      if (status === 401) {
-        // @HACK
+      if (status === 401 || status === 300) {
         /* eslint-disable no-underscore-dangle */
         window.g_app._store.dispatch({
           type: 'login/logout',
@@ -162,4 +166,4 @@ export default function request(url, option) {
     });
 }
 
-export const requestFetch = (url, option) => request(`/api${url}`,option);
+export const requestFetch = (url, option = {}) => request(`/api${url}`,option);

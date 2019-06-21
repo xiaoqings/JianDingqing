@@ -64,8 +64,7 @@ export default {
     },
 
     *logout(_, { put }) {
-      let response = yield requestFetch('/lr/loginOut');
-
+      let response = yield requestFetch('/lr/loginOut',{ method: 'GET', body: {} });
       yield put({
         type: 'changeLoginStatus',
         payload: {

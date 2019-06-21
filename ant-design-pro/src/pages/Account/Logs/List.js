@@ -110,17 +110,13 @@ class List extends PureComponent {
             <RangePicker
               defaultValue={[moment(startDate, dateFormat), moment(endDate, dateFormat)]}
               format={dateFormat}
-              onChange={(dates, dateStrings) => {
-                this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] }, () =>
-                  this.getData()
-                );
-              }}
+              onChange={(dates, dateStrings) =>this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] })}
             />
             <Search
               style={{ width: 250, marginLeft: 10 }}
               defaultValue={searchValue || ''}
               placeholder={'搜索名称'}
-              enterButton="搜索"
+              enterButton="查询"
               onSearch={(value) => {
                 this.pages.pageIndex = 1;
                 this.setState({ searchValue: value }, () => this.getData());

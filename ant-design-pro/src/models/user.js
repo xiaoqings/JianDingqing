@@ -119,7 +119,6 @@ export default {
     // todo 查询当前登录用户信息
     *fetchCurrent({}, { call, put }) {
       let res = JSON.parse(window.localStorage.getItem('currUser'));
-      console.log('0000000000000000000000000 =====> ',res);
       if (res === null) {
         // yield put(routerRedux.replace('/user/login'));
         yield put({

@@ -44,6 +44,7 @@ const query = {
 };
 
 class BasicLayout extends React.Component {
+
   componentDidMount() {
     const {
       dispatch,
@@ -62,6 +63,38 @@ class BasicLayout extends React.Component {
       type: 'menu/getMenuData',
       payload: { routes, authority },
     });
+
+    let websocket = null;
+    if('WebSocket' in window){
+      // ws://www.wlmshop.cn:8888/socket
+      let url = "ws://www.wlmshop.cn:8888/socket";
+      websocket = new WebSocket(url);
+    }else{
+      console.log("该浏览器不支持webSocket!");
+    }
+    websocket.onopen = (event) => {
+      console.log("建立连接");
+      websocket.send("客户端请求连接");
+    };
+    websocket.onclose = (event) => {
+      console.log("连接关闭");
+    };
+    websocket.onmessage = (event) => {
+      console.log("收到消息："+event.data);
+      if(event.data == 'forceExit'){
+        console.log("收到消息："+event.data);
+        dispatch({ type: 'login/logout'});
+      }
+    };
+    websocket.onerror = (e) => {
+      console.log(e);
+      console.log("websocket通信发生错误！");
+    };
+    window.onbeforeunload = () => {
+      console.log('窗口关闭！');
+      websocket.close();
+    };
+
   }
 
   getContext() {

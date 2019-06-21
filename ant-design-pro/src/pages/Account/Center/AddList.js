@@ -67,7 +67,6 @@ export default  class AddList extends PureComponent {
   getData = () => {
     const { dispatch,currentUser } = this.props;
     const { searchValue,startDate, endDate } = this.state;
-    console.log('currentUser ==> ',currentUser);
     const params = {
       pageIndex: this.pages.pageIndex,
       pageSize: this.pages.pageSize,
@@ -99,11 +98,7 @@ export default  class AddList extends PureComponent {
               style={{marginTop:10,marginRight:10}}
               defaultValue={[moment(startDate, dateFormat), moment(endDate, dateFormat)]}
               format={dateFormat}
-              onChange={(dates, dateStrings) => {
-                this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] }, () =>
-                  this.getData()
-                );
-              }}
+              onChange={(dates, dateStrings) =>this.setState({ startDate: dateStrings[0], endDate: dateStrings[1] })}
             />
             <Search
               placeholder={'顾客电话'}
