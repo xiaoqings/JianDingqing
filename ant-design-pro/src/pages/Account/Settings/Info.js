@@ -15,7 +15,7 @@ class Info extends Component {
     super(props);
     const menuMap = {
       center: '基本信息',
-      base: '修改信息',
+      base: '编辑资料',
       security: '修改密码',
     };
     this.state = {

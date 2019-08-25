@@ -135,8 +135,6 @@ export default function request(url, option = {}) {
     .then(checkStatus)
     .then(response => cachedSave(response, hashcode))
     .then(response => {
-      // DELETE and 204 do not return data by default
-      // using .json will report an error.
       if (newOptions.method === 'DELETE' || response.status === 204) {
         return response.text();
       }
@@ -145,13 +143,9 @@ export default function request(url, option = {}) {
     .catch(e => {
       const status = e.name;
       if (status === 401 || status === 300) {
-        /* eslint-disable no-underscore-dangle */
-        window.g_app._store.dispatch({
-          type: 'login/logout',
-        });
+        router.push('login/logout');
         return;
       }
-      // environment should not be used
       if (status === 403) {
         router.push('/exception/403');
         return;
@@ -166,4 +160,12 @@ export default function request(url, option = {}) {
     });
 }
 
-export const requestFetch = (url, option = {}) => request(`/api${url}`,option);
+export const requestFetch = async (url, option = {}) => {
+  let res = await request(`/api${url}`,option);
+  console.log('http result ==> ',res);
+  if(!res || (res && (res.status === 300))){
+    router.push('login/logout');
+    return;
+  }
+  return res;
+};

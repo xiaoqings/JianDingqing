@@ -146,17 +146,16 @@ class BaseView extends Component {
                 ],
               })(<Input placehoder={'联系电话'} />)}
             </FormItem>
-            <FormItem label={'地址'}>
+            <FormItem label={'街道地址'}>
               {getFieldDecorator('address', {
                 rules: [
                   {
-                    required: true,
                     message: '请输入您的街道地址',
                   },
                 ],
               })(<Input placehoder={'地址详情'} />)}
             </FormItem>
-            <Button type="primary" loading={submitting} htmlType="submit">{'更新基本信息'}</Button>
+            <Button type="primary" loading={submitting} htmlType="submit">{'保存修改'}</Button>
           </Form>
         </div>
         <div className={styles.right}>
