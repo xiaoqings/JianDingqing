@@ -36,7 +36,6 @@ export default {
       payload = { businessPhone: payload.mobile };
       console.log(payload);
       let response = yield requestFetch('/lr/sendSms', { method: 'POST', body: payload });
-      console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '验证码发送失败!');
       }

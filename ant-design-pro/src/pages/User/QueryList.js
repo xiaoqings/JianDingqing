@@ -51,7 +51,6 @@ class QueryList extends Component {
 
   // todo 加载获得数据
   getData = async () => {
-    // const { dispatch } = this.props;
     const {searchValue, startDate, endDate} = this.state;
     const params = {
       pageIndex: this.pages.pageIndex,
@@ -60,10 +59,7 @@ class QueryList extends Component {
       startTime: startDate,
       endTime: endDate,
     };
-    // dispatch({
-    //   type: 'list/queryList',
-    //   payload: params
-    // });
+
     this.setState({loading:true});
     const response = await requestFetch('/customer/find', { method: 'POST', body: params });
     this.setState({loading:false});

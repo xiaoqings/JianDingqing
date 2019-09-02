@@ -40,11 +40,19 @@ export default {
 
     // todo 查询用户登录日志
     *queryList({ payload }, { call, put }) {
+      // const response = yield requestFetch('/customer/find', { method: 'POST', body: payload });
+      // if (!(response && response.status === 200)) {
+      //   return message.error(response.message);
+      // }
+      // yield put({ type: 'queryList', payload: response});
+    },
+
+    // todo 查询用户登录日志
+    *queryUserLoginLogList({ payload }, { call, put }) {
       const response = yield requestFetch('/customer/find', { method: 'POST', body: payload });
       if (!(response && response.status === 200)) {
         return message.error(response.message);
       }
-      console.log(response);
       yield put({ type: 'queryList', payload: response});
     },
   },
