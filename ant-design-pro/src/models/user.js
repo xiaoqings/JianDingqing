@@ -247,6 +247,10 @@ export default {
         return message.error(response.message || '数据提交失败!');
       }
       message.success(`提交成功!`);
+      yield put({
+        type: 'changeState',
+        payload: { status : true }
+      });
     },
 
     // todo 核销消费点
@@ -258,9 +262,7 @@ export default {
       message.success(response.message || `数据提交成功,待总经销商确认!`);
       yield put({
         type: 'changeState',
-        payload: {
-          status : true
-        },
+        payload: { status : true }
       });
     },
 
@@ -270,9 +272,7 @@ export default {
         customerPhone: payload.mobile,
         consumptionShoppingSpot : payload.money
       };
-      console.log(payload);
       let response = yield requestFetch('/ssc/sendSmsCode', { method: 'POST', body: payload });
-      console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '验证码发送失败!');
       }
