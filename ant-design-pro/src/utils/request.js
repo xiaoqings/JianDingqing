@@ -65,15 +65,14 @@ const cachedSave = (response, hashcode) => {
  * @return {object}           An object containing either "data" or "err"
  */
 export default function request(url, option = {}) {
-  const options = {
-    expirys: isAntdPro(),
-    ...option,
-  };
-
   let res = JSON.parse(window.localStorage.getItem('currUser'));
   if(res){
     option.body.businessCode = res.userid;
   }
+  const options = {
+    expirys: isAntdPro(),
+    ...option,
+  };
   /**
    * Produce fingerprints based on url and parameters
    * Maybe url has the same parameters

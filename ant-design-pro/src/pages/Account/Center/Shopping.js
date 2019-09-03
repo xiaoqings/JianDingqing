@@ -178,7 +178,7 @@ export default  class Shopping extends PureComponent {
     dispatch({
       type: 'user/HeXiaoShpping',
       payload: {
-        businessCode : currentUser.userid,
+        bdiCode : currentUser.userid,
         code : verifyCode,
       }
     });

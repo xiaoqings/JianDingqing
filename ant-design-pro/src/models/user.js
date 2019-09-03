@@ -241,8 +241,8 @@ export default {
 
     // todo 保存设置核销时间
     *saveSetting({payload}, { call, put }) {
+      console.log(payload);
       let response = yield requestFetch('/detail/setWOTime', { method: 'POST', body: payload });
-      console.log(response);
       if (!(response && response.status === 200)) {
         return message.error(response.message || '数据提交失败!');
       }
@@ -342,6 +342,7 @@ export default {
       };
     },
     saveCurrentUser(state, { payload }) {
+      console.log(payload);
       return {
         ...state,
         currentUser: payload || {},

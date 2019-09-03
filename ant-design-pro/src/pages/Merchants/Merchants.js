@@ -65,7 +65,9 @@ export default class Merchants extends PureComponent {
             <div>
               {text}
               <Divider type="vertical" />
-              <a onClick={() => this.setState({visible:true,type : 1,infoCode :record.businessCode})} >详情</a>
+              <a onClick={() => {
+                this.setState({visible:true,type : 1,infoCode :record.businessCode})
+              }} >详情</a>
             </div>
           );
         },
@@ -107,14 +109,16 @@ export default class Merchants extends PureComponent {
             <Fragment>
               <div><a onClick={() => this.setState({visible:true, type : 2,infoCode :record.businessCode })}>核销记录</a></div>
               <div>
-                <a onClick={() => this.setState({
-                  showTimeModal:true,
-                  infoCode :record.businessCode,
-                  info:record,
-                  defaultType : type,
-                  startDate : start ,
-                  endDate : end,
-                })} >核销设置</a>
+                <a onClick={() => {
+                  this.setState({
+                    showTimeModal:true,
+                    infoCode :record.businessCode,
+                    info:record,
+                    defaultType : type,
+                    startDate : start ,
+                    endDate : end,
+                  })
+                }} >核销设置</a>
               </div>
               <div>
                 {text ? <a onClick={() => this.confirmHeXiao(record)} >{'确认核销'}</a> : null}
@@ -159,7 +163,6 @@ export default class Merchants extends PureComponent {
   // todo 加载获得数据
   getData = () => {
     const { dispatch } = this.props;
-    console.log(this.pages);
     const params = {
       pageIndex: this.pages.pageIndex,
       pageSize: this.pages.pageSize,
@@ -184,7 +187,7 @@ export default class Merchants extends PureComponent {
         dispatch({
           type: 'user/confirmHeXiao',
           payload: {
-            businessCode : info.businessCode,
+            bdiCode : info.businessCode,
           },
         });
 
@@ -211,7 +214,7 @@ export default class Merchants extends PureComponent {
 
     const params = {
       setType : defaultType,
-      businessCode : infoCode,
+      bdiCode : infoCode,
       startDate,
       endDate,
     };
@@ -441,7 +444,7 @@ export class WaitDoneTable extends PureComponent{
     const { dispatch,businessCode,businessType } = this.props;
     if(!businessCode){return message.error('商户信息参数错误!')}
     const params = {
-      businessCode : businessCode,
+      bdiCode : businessCode,
       pageIndex : this.pages.pageIndex,
       pageSize : this.pages.pageSize,
     };
