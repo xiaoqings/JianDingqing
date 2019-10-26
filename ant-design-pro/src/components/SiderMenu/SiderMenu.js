@@ -54,7 +54,7 @@ export default class SiderMenu extends PureComponent {
   };
 
   render() {
-    const { logo, collapsed, onCollapse, fixSiderbar, theme, isMobile } = this.props;
+    const { logo,logo1, collapsed, onCollapse, fixSiderbar, theme, isMobile } = this.props;
     const { openKeys } = this.state;
     const defaultProps = collapsed ? {} : { openKeys };
 
@@ -79,8 +79,9 @@ export default class SiderMenu extends PureComponent {
       >
         <div className={styles.logo} id="logo">
           <Link to="/">
-            <img src={logo} alt="logo" />
-            <h1>{title}</h1>
+            <img src={logo} alt="logo" style={{height:52}} />
+            <img src={logo1} alt="logo" style={{height:26,marginLeft:'8px', marginTop:'-8px'}} />
+            {/*<h1>{title}</h1>*/}
           </Link>
         </div>
         <Suspense fallback={<PageLoading />}>

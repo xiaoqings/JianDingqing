@@ -140,8 +140,6 @@ export default class Merchants extends PureComponent {
       this.pages.pageSize = page.pageSize || 1;
       this.pages.pageCount = page.totalCount || 1;
     }
-    console.log('00000000000000000000000000000000000000');
-    console.log(nextProps);
     if(isSubmit){
       this.setState({showTimeModal : false});
       this.getData();
