@@ -74,8 +74,8 @@ export default class Merchants extends PureComponent {
       },
       {
         title: '入驻时间',
-        dataIndex: 'createAt',
-        render: val => <span>{getDateString(val)}</span>,
+        dataIndex: 'businessCreateTime',
+        render: val => <span>{val ? getDateString(val) : '-'}</span>,
       },
       {
         title: '核销时间',
