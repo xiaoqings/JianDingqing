@@ -6,14 +6,11 @@ import DocumentTitle from 'react-document-title';
 import GlobalFooter from '../components/GlobalFooter';
 import styles from './UserLayout.less';
 import logo from '../assets/logo_1.png';
-import header from '../assets/header.png';
 import getPageTitle from '../utils/getPageTitle';
 
 const copyright = (
   <Fragment>
-    <div style={{position:'absolute',bottom:15, left:'45%'}}>
       Copyright <Icon type="copyright" /> 微睐美商城所有
-    </div>
   </Fragment>
 );
 
